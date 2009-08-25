@@ -1,0 +1,22 @@
+{
+  "person": [ {
+    "name": "Andy",
+    "id": 10,
+    "email": "andy@foo.com",
+    "phone": [ {
+      "number": "609-555-1234",
+      "type": "MOBILE"
+    }, {
+      "number": "609-123-4567",
+      "type": "WORK"
+    } ]
+  }, {
+    "name": "Bob",
+    "id": 20,
+    "email": "bob@bob.com",
+    "phone": [ {
+      "number": "415-123-4321",
+      "type": "WORK"
+    } ]
+  } ]
+}

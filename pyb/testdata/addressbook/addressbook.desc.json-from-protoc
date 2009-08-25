@@ -1,0 +1,88 @@
+{
+  "file": [ {
+    "name": "addressbook.proto",
+    "package": "tutorial",
+    "dependency": [ ],
+    "message_type": [ {
+      "name": "Person",
+      "field": [ {
+        "name": "name",
+        "number": 1,
+        "label": "LABEL_REQUIRED",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "id",
+        "number": 2,
+        "label": "LABEL_REQUIRED",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "email",
+        "number": 3,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "phone",
+        "number": 4,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".tutorial.Person.PhoneNumber"
+      } ],
+      "nested_type": [ {
+        "name": "PhoneNumber",
+        "field": [ {
+          "name": "number",
+          "number": 1,
+          "label": "LABEL_REQUIRED",
+          "type": "TYPE_STRING"
+        }, {
+          "name": "type",
+          "number": 2,
+          "label": "LABEL_OPTIONAL",
+          "type": "TYPE_ENUM",
+          "type_name": ".tutorial.Person.PhoneType",
+          "default_value": "HOME"
+        } ],
+        "nested_type": [ ],
+        "enum_type": [ ],
+        "extension_range": [ ],
+        "extension": [ ]
+      } ],
+      "enum_type": [ {
+        "name": "PhoneType",
+        "value": [ {
+          "name": "MOBILE",
+          "number": 0
+        }, {
+          "name": "HOME",
+          "number": 1
+        }, {
+          "name": "WORK",
+          "number": 2
+        } ]
+      } ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "AddressBook",
+      "field": [ {
+        "name": "person",
+        "number": 1,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".tutorial.Person"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    } ],
+    "enum_type": [ ],
+    "service": [ ],
+    "extension": [ ],
+    "options": {
+      "java_package": "com.example.tutorial",
+      "java_outer_classname": "AddressBookProtos",
+      "uninterpreted_option": [ ]
+    }
+  } ]
+}

@@ -1,0 +1,2037 @@
+{
+  "file": [ {
+    "name": "google/protobuf/unittest.proto",
+    "package": "protobuf_unittest",
+    "dependency": [ "google/protobuf/unittest_import.proto" ],
+    "message_type": [ {
+      "name": "TestAllTypes",
+      "field": [ {
+        "name": "optional_int32",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "optional_int64",
+        "number": 2,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT64"
+      }, {
+        "name": "optional_uint32",
+        "number": 3,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_UINT32"
+      }, {
+        "name": "optional_uint64",
+        "number": 4,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_UINT64"
+      }, {
+        "name": "optional_sint32",
+        "number": 5,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_SINT32"
+      }, {
+        "name": "optional_sint64",
+        "number": 6,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_SINT64"
+      }, {
+        "name": "optional_fixed32",
+        "number": 7,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_FIXED32"
+      }, {
+        "name": "optional_fixed64",
+        "number": 8,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_FIXED64"
+      }, {
+        "name": "optional_sfixed32",
+        "number": 9,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_SFIXED32"
+      }, {
+        "name": "optional_sfixed64",
+        "number": 10,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_SFIXED64"
+      }, {
+        "name": "optional_float",
+        "number": 11,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_FLOAT"
+      }, {
+        "name": "optional_double",
+        "number": 12,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_DOUBLE"
+      }, {
+        "name": "optional_bool",
+        "number": 13,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BOOL"
+      }, {
+        "name": "optional_string",
+        "number": 14,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "optional_bytes",
+        "number": 15,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BYTES"
+      }, {
+        "name": "optionalgroup",
+        "number": 16,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_GROUP",
+        "type_name": ".protobuf_unittest.TestAllTypes.OptionalGroup"
+      }, {
+        "name": "optional_nested_message",
+        "number": 18,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest.TestAllTypes.NestedMessage"
+      }, {
+        "name": "optional_foreign_message",
+        "number": 19,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest.ForeignMessage"
+      }, {
+        "name": "optional_import_message",
+        "number": 20,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest_import.ImportMessage"
+      }, {
+        "name": "optional_nested_enum",
+        "number": 21,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_ENUM",
+        "type_name": ".protobuf_unittest.TestAllTypes.NestedEnum"
+      }, {
+        "name": "optional_foreign_enum",
+        "number": 22,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_ENUM",
+        "type_name": ".protobuf_unittest.ForeignEnum"
+      }, {
+        "name": "optional_import_enum",
+        "number": 23,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_ENUM",
+        "type_name": ".protobuf_unittest_import.ImportEnum"
+      }, {
+        "name": "optional_string_piece",
+        "number": 24,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING",
+        "options": {
+          "ctype": "STRING_PIECE",
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "optional_cord",
+        "number": 25,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING",
+        "options": {
+          "ctype": "CORD",
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "repeated_int32",
+        "number": 31,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "repeated_int64",
+        "number": 32,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_INT64"
+      }, {
+        "name": "repeated_uint32",
+        "number": 33,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_UINT32"
+      }, {
+        "name": "repeated_uint64",
+        "number": 34,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_UINT64"
+      }, {
+        "name": "repeated_sint32",
+        "number": 35,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_SINT32"
+      }, {
+        "name": "repeated_sint64",
+        "number": 36,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_SINT64"
+      }, {
+        "name": "repeated_fixed32",
+        "number": 37,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_FIXED32"
+      }, {
+        "name": "repeated_fixed64",
+        "number": 38,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_FIXED64"
+      }, {
+        "name": "repeated_sfixed32",
+        "number": 39,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_SFIXED32"
+      }, {
+        "name": "repeated_sfixed64",
+        "number": 40,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_SFIXED64"
+      }, {
+        "name": "repeated_float",
+        "number": 41,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_FLOAT"
+      }, {
+        "name": "repeated_double",
+        "number": 42,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_DOUBLE"
+      }, {
+        "name": "repeated_bool",
+        "number": 43,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_BOOL"
+      }, {
+        "name": "repeated_string",
+        "number": 44,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "repeated_bytes",
+        "number": 45,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_BYTES"
+      }, {
+        "name": "repeatedgroup",
+        "number": 46,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_GROUP",
+        "type_name": ".protobuf_unittest.TestAllTypes.RepeatedGroup"
+      }, {
+        "name": "repeated_nested_message",
+        "number": 48,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest.TestAllTypes.NestedMessage"
+      }, {
+        "name": "repeated_foreign_message",
+        "number": 49,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest.ForeignMessage"
+      }, {
+        "name": "repeated_import_message",
+        "number": 50,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest_import.ImportMessage"
+      }, {
+        "name": "repeated_nested_enum",
+        "number": 51,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_ENUM",
+        "type_name": ".protobuf_unittest.TestAllTypes.NestedEnum"
+      }, {
+        "name": "repeated_foreign_enum",
+        "number": 52,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_ENUM",
+        "type_name": ".protobuf_unittest.ForeignEnum"
+      }, {
+        "name": "repeated_import_enum",
+        "number": 53,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_ENUM",
+        "type_name": ".protobuf_unittest_import.ImportEnum"
+      }, {
+        "name": "repeated_string_piece",
+        "number": 54,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_STRING",
+        "options": {
+          "ctype": "STRING_PIECE",
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "repeated_cord",
+        "number": 55,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_STRING",
+        "options": {
+          "ctype": "CORD",
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "default_int32",
+        "number": 61,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32",
+        "default_value": "41"
+      }, {
+        "name": "default_int64",
+        "number": 62,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT64",
+        "default_value": "42"
+      }, {
+        "name": "default_uint32",
+        "number": 63,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_UINT32",
+        "default_value": "43"
+      }, {
+        "name": "default_uint64",
+        "number": 64,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_UINT64",
+        "default_value": "44"
+      }, {
+        "name": "default_sint32",
+        "number": 65,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_SINT32",
+        "default_value": "-45"
+      }, {
+        "name": "default_sint64",
+        "number": 66,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_SINT64",
+        "default_value": "46"
+      }, {
+        "name": "default_fixed32",
+        "number": 67,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_FIXED32",
+        "default_value": "47"
+      }, {
+        "name": "default_fixed64",
+        "number": 68,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_FIXED64",
+        "default_value": "48"
+      }, {
+        "name": "default_sfixed32",
+        "number": 69,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_SFIXED32",
+        "default_value": "49"
+      }, {
+        "name": "default_sfixed64",
+        "number": 70,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_SFIXED64",
+        "default_value": "-50"
+      }, {
+        "name": "default_float",
+        "number": 71,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_FLOAT",
+        "default_value": "51.5"
+      }, {
+        "name": "default_double",
+        "number": 72,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_DOUBLE",
+        "default_value": "52000"
+      }, {
+        "name": "default_bool",
+        "number": 73,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BOOL",
+        "default_value": "true"
+      }, {
+        "name": "default_string",
+        "number": 74,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING",
+        "default_value": "hello"
+      }, {
+        "name": "default_bytes",
+        "number": 75,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BYTES",
+        "default_value": "world"
+      }, {
+        "name": "default_nested_enum",
+        "number": 81,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_ENUM",
+        "type_name": ".protobuf_unittest.TestAllTypes.NestedEnum",
+        "default_value": "BAR"
+      }, {
+        "name": "default_foreign_enum",
+        "number": 82,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_ENUM",
+        "type_name": ".protobuf_unittest.ForeignEnum",
+        "default_value": "FOREIGN_BAR"
+      }, {
+        "name": "default_import_enum",
+        "number": 83,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_ENUM",
+        "type_name": ".protobuf_unittest_import.ImportEnum",
+        "default_value": "IMPORT_BAR"
+      }, {
+        "name": "default_string_piece",
+        "number": 84,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING",
+        "default_value": "abc",
+        "options": {
+          "ctype": "STRING_PIECE",
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "default_cord",
+        "number": 85,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING",
+        "default_value": "123",
+        "options": {
+          "ctype": "CORD",
+          "uninterpreted_option": [ ]
+        }
+      } ],
+      "nested_type": [ {
+        "name": "NestedMessage",
+        "field": [ {
+          "name": "bb",
+          "number": 1,
+          "label": "LABEL_OPTIONAL",
+          "type": "TYPE_INT32"
+        } ],
+        "nested_type": [ ],
+        "enum_type": [ ],
+        "extension_range": [ ],
+        "extension": [ ]
+      }, {
+        "name": "OptionalGroup",
+        "field": [ {
+          "name": "a",
+          "number": 17,
+          "label": "LABEL_OPTIONAL",
+          "type": "TYPE_INT32"
+        } ],
+        "nested_type": [ ],
+        "enum_type": [ ],
+        "extension_range": [ ],
+        "extension": [ ]
+      }, {
+        "name": "RepeatedGroup",
+        "field": [ {
+          "name": "a",
+          "number": 47,
+          "label": "LABEL_OPTIONAL",
+          "type": "TYPE_INT32"
+        } ],
+        "nested_type": [ ],
+        "enum_type": [ ],
+        "extension_range": [ ],
+        "extension": [ ]
+      } ],
+      "enum_type": [ {
+        "name": "NestedEnum",
+        "value": [ {
+          "name": "FOO",
+          "number": 1
+        }, {
+          "name": "BAR",
+          "number": 2
+        }, {
+          "name": "BAZ",
+          "number": 3
+        } ]
+      } ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "ForeignMessage",
+      "field": [ {
+        "name": "c",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "TestAllExtensions",
+      "field": [ ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ {
+        "start": 1,
+        "end": 536870912
+      } ],
+      "extension": [ ]
+    }, {
+      "name": "OptionalGroup_extension",
+      "field": [ {
+        "name": "a",
+        "number": 17,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "RepeatedGroup_extension",
+      "field": [ {
+        "name": "a",
+        "number": 47,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "TestNestedExtension",
+      "field": [ ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ {
+        "name": "test",
+        "extendee": ".protobuf_unittest.TestAllExtensions",
+        "number": 1002,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING",
+        "default_value": "test"
+      } ]
+    }, {
+      "name": "TestRequired",
+      "field": [ {
+        "name": "a",
+        "number": 1,
+        "label": "LABEL_REQUIRED",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy2",
+        "number": 2,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "b",
+        "number": 3,
+        "label": "LABEL_REQUIRED",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy4",
+        "number": 4,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy5",
+        "number": 5,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy6",
+        "number": 6,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy7",
+        "number": 7,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy8",
+        "number": 8,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy9",
+        "number": 9,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy10",
+        "number": 10,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy11",
+        "number": 11,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy12",
+        "number": 12,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy13",
+        "number": 13,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy14",
+        "number": 14,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy15",
+        "number": 15,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy16",
+        "number": 16,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy17",
+        "number": 17,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy18",
+        "number": 18,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy19",
+        "number": 19,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy20",
+        "number": 20,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy21",
+        "number": 21,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy22",
+        "number": 22,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy23",
+        "number": 23,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy24",
+        "number": 24,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy25",
+        "number": 25,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy26",
+        "number": 26,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy27",
+        "number": 27,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy28",
+        "number": 28,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy29",
+        "number": 29,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy30",
+        "number": 30,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy31",
+        "number": 31,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "dummy32",
+        "number": 32,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "c",
+        "number": 33,
+        "label": "LABEL_REQUIRED",
+        "type": "TYPE_INT32"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ {
+        "name": "single",
+        "extendee": ".protobuf_unittest.TestAllExtensions",
+        "number": 1000,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest.TestRequired"
+      }, {
+        "name": "multi",
+        "extendee": ".protobuf_unittest.TestAllExtensions",
+        "number": 1001,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest.TestRequired"
+      } ]
+    }, {
+      "name": "TestRequiredForeign",
+      "field": [ {
+        "name": "optional_message",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest.TestRequired"
+      }, {
+        "name": "repeated_message",
+        "number": 2,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest.TestRequired"
+      }, {
+        "name": "dummy",
+        "number": 3,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "TestForeignNested",
+      "field": [ {
+        "name": "foreign_nested",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest.TestAllTypes.NestedMessage"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "TestEmptyMessage",
+      "field": [ ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "TestEmptyMessageWithExtensions",
+      "field": [ ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ {
+        "start": 1,
+        "end": 536870912
+      } ],
+      "extension": [ ]
+    }, {
+      "name": "TestReallyLargeTagNumber",
+      "field": [ {
+        "name": "a",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "bb",
+        "number": 268435455,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "TestRecursiveMessage",
+      "field": [ {
+        "name": "a",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest.TestRecursiveMessage"
+      }, {
+        "name": "i",
+        "number": 2,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "TestMutualRecursionA",
+      "field": [ {
+        "name": "bb",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest.TestMutualRecursionB"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "TestMutualRecursionB",
+      "field": [ {
+        "name": "a",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest.TestMutualRecursionA"
+      }, {
+        "name": "optional_int32",
+        "number": 2,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "TestDupFieldNumber",
+      "field": [ {
+        "name": "a",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "foo",
+        "number": 2,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_GROUP",
+        "type_name": ".protobuf_unittest.TestDupFieldNumber.Foo"
+      }, {
+        "name": "bar",
+        "number": 3,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_GROUP",
+        "type_name": ".protobuf_unittest.TestDupFieldNumber.Bar"
+      } ],
+      "nested_type": [ {
+        "name": "Foo",
+        "field": [ {
+          "name": "a",
+          "number": 1,
+          "label": "LABEL_OPTIONAL",
+          "type": "TYPE_INT32"
+        } ],
+        "nested_type": [ ],
+        "enum_type": [ ],
+        "extension_range": [ ],
+        "extension": [ ]
+      }, {
+        "name": "Bar",
+        "field": [ {
+          "name": "a",
+          "number": 1,
+          "label": "LABEL_OPTIONAL",
+          "type": "TYPE_INT32"
+        } ],
+        "nested_type": [ ],
+        "enum_type": [ ],
+        "extension_range": [ ],
+        "extension": [ ]
+      } ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "TestNestedMessageHasBits",
+      "field": [ {
+        "name": "optional_nested_message",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest.TestNestedMessageHasBits.NestedMessage"
+      } ],
+      "nested_type": [ {
+        "name": "NestedMessage",
+        "field": [ {
+          "name": "nestedmessage_repeated_int32",
+          "number": 1,
+          "label": "LABEL_REPEATED",
+          "type": "TYPE_INT32"
+        }, {
+          "name": "nestedmessage_repeated_foreignmessage",
+          "number": 2,
+          "label": "LABEL_REPEATED",
+          "type": "TYPE_MESSAGE",
+          "type_name": ".protobuf_unittest.ForeignMessage"
+        } ],
+        "nested_type": [ ],
+        "enum_type": [ ],
+        "extension_range": [ ],
+        "extension": [ ]
+      } ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "TestCamelCaseFieldNames",
+      "field": [ {
+        "name": "PrimitiveField",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "StringField",
+        "number": 2,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "EnumField",
+        "number": 3,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_ENUM",
+        "type_name": ".protobuf_unittest.ForeignEnum"
+      }, {
+        "name": "MessageField",
+        "number": 4,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest.ForeignMessage"
+      }, {
+        "name": "StringPieceField",
+        "number": 5,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING",
+        "options": {
+          "ctype": "STRING_PIECE",
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "CordField",
+        "number": 6,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING",
+        "options": {
+          "ctype": "CORD",
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "RepeatedPrimitiveField",
+        "number": 7,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "RepeatedStringField",
+        "number": 8,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "RepeatedEnumField",
+        "number": 9,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_ENUM",
+        "type_name": ".protobuf_unittest.ForeignEnum"
+      }, {
+        "name": "RepeatedMessageField",
+        "number": 10,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".protobuf_unittest.ForeignMessage"
+      }, {
+        "name": "RepeatedStringPieceField",
+        "number": 11,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_STRING",
+        "options": {
+          "ctype": "STRING_PIECE",
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "RepeatedCordField",
+        "number": 12,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_STRING",
+        "options": {
+          "ctype": "CORD",
+          "uninterpreted_option": [ ]
+        }
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "TestFieldOrderings",
+      "field": [ {
+        "name": "my_string",
+        "number": 11,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "my_int",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT64"
+      }, {
+        "name": "my_float",
+        "number": 101,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_FLOAT"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ {
+        "start": 2,
+        "end": 11
+      }, {
+        "start": 12,
+        "end": 101
+      } ],
+      "extension": [ ]
+    }, {
+      "name": "TestExtremeDefaultValues",
+      "field": [ {
+        "name": "escaped_bytes",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BYTES",
+        "default_value": "\\000\\001\\007\\010\\014\\n\\r\\t\\013\\\\\\'\\\"\\376"
+      }, {
+        "name": "large_uint32",
+        "number": 2,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_UINT32",
+        "default_value": "4294967295"
+      }, {
+        "name": "large_uint64",
+        "number": 3,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_UINT64",
+        "default_value": "18446744073709551615"
+      }, {
+        "name": "small_int32",
+        "number": 4,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32",
+        "default_value": "-2147483647"
+      }, {
+        "name": "small_int64",
+        "number": 5,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT64",
+        "default_value": "-9223372036854775807"
+      }, {
+        "name": "utf8_string",
+        "number": 6,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING",
+        "default_value": "ሴ"
+      }, {
+        "name": "zero_float",
+        "number": 7,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_FLOAT",
+        "default_value": "0"
+      }, {
+        "name": "one_float",
+        "number": 8,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_FLOAT",
+        "default_value": "1"
+      }, {
+        "name": "small_float",
+        "number": 9,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_FLOAT",
+        "default_value": "1.5"
+      }, {
+        "name": "negative_one_float",
+        "number": 10,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_FLOAT",
+        "default_value": "-1"
+      }, {
+        "name": "negative_float",
+        "number": 11,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_FLOAT",
+        "default_value": "-1.5"
+      }, {
+        "name": "large_float",
+        "number": 12,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_FLOAT",
+        "default_value": "2e+08"
+      }, {
+        "name": "small_negative_float",
+        "number": 13,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_FLOAT",
+        "default_value": "-8e-28"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "OneString",
+      "field": [ {
+        "name": "data",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "OneBytes",
+      "field": [ {
+        "name": "data",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BYTES"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "TestPackedTypes",
+      "field": [ {
+        "name": "packed_int32",
+        "number": 90,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_INT32",
+        "options": {
+          "packed": true,
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "packed_int64",
+        "number": 91,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_INT64",
+        "options": {
+          "packed": true,
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "packed_uint32",
+        "number": 92,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_UINT32",
+        "options": {
+          "packed": true,
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "packed_uint64",
+        "number": 93,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_UINT64",
+        "options": {
+          "packed": true,
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "packed_sint32",
+        "number": 94,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_SINT32",
+        "options": {
+          "packed": true,
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "packed_sint64",
+        "number": 95,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_SINT64",
+        "options": {
+          "packed": true,
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "packed_fixed32",
+        "number": 96,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_FIXED32",
+        "options": {
+          "packed": true,
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "packed_fixed64",
+        "number": 97,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_FIXED64",
+        "options": {
+          "packed": true,
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "packed_sfixed32",
+        "number": 98,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_SFIXED32",
+        "options": {
+          "packed": true,
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "packed_sfixed64",
+        "number": 99,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_SFIXED64",
+        "options": {
+          "packed": true,
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "packed_float",
+        "number": 100,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_FLOAT",
+        "options": {
+          "packed": true,
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "packed_double",
+        "number": 101,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_DOUBLE",
+        "options": {
+          "packed": true,
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "packed_bool",
+        "number": 102,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_BOOL",
+        "options": {
+          "packed": true,
+          "uninterpreted_option": [ ]
+        }
+      }, {
+        "name": "packed_enum",
+        "number": 103,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_ENUM",
+        "type_name": ".protobuf_unittest.ForeignEnum",
+        "options": {
+          "packed": true,
+          "uninterpreted_option": [ ]
+        }
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "TestPackedExtensions",
+      "field": [ ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ {
+        "start": 1,
+        "end": 536870912
+      } ],
+      "extension": [ ]
+    }, {
+      "name": "FooRequest",
+      "field": [ ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "FooResponse",
+      "field": [ ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "BarRequest",
+      "field": [ ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "BarResponse",
+      "field": [ ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    } ],
+    "enum_type": [ {
+      "name": "ForeignEnum",
+      "value": [ {
+        "name": "FOREIGN_FOO",
+        "number": 4
+      }, {
+        "name": "FOREIGN_BAR",
+        "number": 5
+      }, {
+        "name": "FOREIGN_BAZ",
+        "number": 6
+      } ]
+    }, {
+      "name": "TestEnumWithDupValue",
+      "value": [ {
+        "name": "FOO1",
+        "number": 1
+      }, {
+        "name": "BAR1",
+        "number": 2
+      }, {
+        "name": "BAZ",
+        "number": 3
+      }, {
+        "name": "FOO2",
+        "number": 1
+      }, {
+        "name": "BAR2",
+        "number": 2
+      } ]
+    }, {
+      "name": "TestSparseEnum",
+      "value": [ {
+        "name": "SPARSE_A",
+        "number": 123
+      }, {
+        "name": "SPARSE_B",
+        "number": 62374
+      }, {
+        "name": "SPARSE_C",
+        "number": 12589234
+      }, {
+        "name": "SPARSE_D",
+        "number": -15
+      }, {
+        "name": "SPARSE_E",
+        "number": -53452
+      }, {
+        "name": "SPARSE_F",
+        "number": 0
+      }, {
+        "name": "SPARSE_G",
+        "number": 2
+      } ]
+    } ],
+    "service": [ {
+      "name": "TestService",
+      "method": [ {
+        "name": "Foo",
+        "input_type": ".protobuf_unittest.FooRequest",
+        "output_type": ".protobuf_unittest.FooResponse"
+      }, {
+        "name": "Bar",
+        "input_type": ".protobuf_unittest.BarRequest",
+        "output_type": ".protobuf_unittest.BarResponse"
+      } ]
+    } ],
+    "extension": [ {
+      "name": "optional_int32_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 1,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_INT32"
+    }, {
+      "name": "optional_int64_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 2,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_INT64"
+    }, {
+      "name": "optional_uint32_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 3,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_UINT32"
+    }, {
+      "name": "optional_uint64_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 4,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_UINT64"
+    }, {
+      "name": "optional_sint32_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 5,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_SINT32"
+    }, {
+      "name": "optional_sint64_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 6,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_SINT64"
+    }, {
+      "name": "optional_fixed32_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 7,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_FIXED32"
+    }, {
+      "name": "optional_fixed64_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 8,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_FIXED64"
+    }, {
+      "name": "optional_sfixed32_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 9,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_SFIXED32"
+    }, {
+      "name": "optional_sfixed64_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 10,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_SFIXED64"
+    }, {
+      "name": "optional_float_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 11,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_FLOAT"
+    }, {
+      "name": "optional_double_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 12,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_DOUBLE"
+    }, {
+      "name": "optional_bool_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 13,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_BOOL"
+    }, {
+      "name": "optional_string_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 14,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_STRING"
+    }, {
+      "name": "optional_bytes_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 15,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_BYTES"
+    }, {
+      "name": "optionalgroup_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 16,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_GROUP",
+      "type_name": ".protobuf_unittest.OptionalGroup_extension"
+    }, {
+      "name": "optional_nested_message_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 18,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_MESSAGE",
+      "type_name": ".protobuf_unittest.TestAllTypes.NestedMessage"
+    }, {
+      "name": "optional_foreign_message_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 19,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_MESSAGE",
+      "type_name": ".protobuf_unittest.ForeignMessage"
+    }, {
+      "name": "optional_import_message_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 20,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_MESSAGE",
+      "type_name": ".protobuf_unittest_import.ImportMessage"
+    }, {
+      "name": "optional_nested_enum_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 21,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_ENUM",
+      "type_name": ".protobuf_unittest.TestAllTypes.NestedEnum"
+    }, {
+      "name": "optional_foreign_enum_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 22,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_ENUM",
+      "type_name": ".protobuf_unittest.ForeignEnum"
+    }, {
+      "name": "optional_import_enum_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 23,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_ENUM",
+      "type_name": ".protobuf_unittest_import.ImportEnum"
+    }, {
+      "name": "optional_string_piece_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 24,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_STRING",
+      "options": {
+        "ctype": "STRING_PIECE",
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "optional_cord_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 25,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_STRING",
+      "options": {
+        "ctype": "CORD",
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "repeated_int32_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 31,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_INT32"
+    }, {
+      "name": "repeated_int64_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 32,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_INT64"
+    }, {
+      "name": "repeated_uint32_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 33,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_UINT32"
+    }, {
+      "name": "repeated_uint64_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 34,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_UINT64"
+    }, {
+      "name": "repeated_sint32_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 35,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_SINT32"
+    }, {
+      "name": "repeated_sint64_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 36,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_SINT64"
+    }, {
+      "name": "repeated_fixed32_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 37,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_FIXED32"
+    }, {
+      "name": "repeated_fixed64_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 38,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_FIXED64"
+    }, {
+      "name": "repeated_sfixed32_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 39,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_SFIXED32"
+    }, {
+      "name": "repeated_sfixed64_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 40,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_SFIXED64"
+    }, {
+      "name": "repeated_float_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 41,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_FLOAT"
+    }, {
+      "name": "repeated_double_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 42,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_DOUBLE"
+    }, {
+      "name": "repeated_bool_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 43,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_BOOL"
+    }, {
+      "name": "repeated_string_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 44,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_STRING"
+    }, {
+      "name": "repeated_bytes_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 45,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_BYTES"
+    }, {
+      "name": "repeatedgroup_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 46,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_GROUP",
+      "type_name": ".protobuf_unittest.RepeatedGroup_extension"
+    }, {
+      "name": "repeated_nested_message_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 48,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_MESSAGE",
+      "type_name": ".protobuf_unittest.TestAllTypes.NestedMessage"
+    }, {
+      "name": "repeated_foreign_message_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 49,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_MESSAGE",
+      "type_name": ".protobuf_unittest.ForeignMessage"
+    }, {
+      "name": "repeated_import_message_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 50,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_MESSAGE",
+      "type_name": ".protobuf_unittest_import.ImportMessage"
+    }, {
+      "name": "repeated_nested_enum_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 51,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_ENUM",
+      "type_name": ".protobuf_unittest.TestAllTypes.NestedEnum"
+    }, {
+      "name": "repeated_foreign_enum_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 52,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_ENUM",
+      "type_name": ".protobuf_unittest.ForeignEnum"
+    }, {
+      "name": "repeated_import_enum_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 53,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_ENUM",
+      "type_name": ".protobuf_unittest_import.ImportEnum"
+    }, {
+      "name": "repeated_string_piece_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 54,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_STRING",
+      "options": {
+        "ctype": "STRING_PIECE",
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "repeated_cord_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 55,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_STRING",
+      "options": {
+        "ctype": "CORD",
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "default_int32_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 61,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_INT32",
+      "default_value": "41"
+    }, {
+      "name": "default_int64_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 62,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_INT64",
+      "default_value": "42"
+    }, {
+      "name": "default_uint32_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 63,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_UINT32",
+      "default_value": "43"
+    }, {
+      "name": "default_uint64_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 64,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_UINT64",
+      "default_value": "44"
+    }, {
+      "name": "default_sint32_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 65,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_SINT32",
+      "default_value": "-45"
+    }, {
+      "name": "default_sint64_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 66,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_SINT64",
+      "default_value": "46"
+    }, {
+      "name": "default_fixed32_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 67,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_FIXED32",
+      "default_value": "47"
+    }, {
+      "name": "default_fixed64_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 68,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_FIXED64",
+      "default_value": "48"
+    }, {
+      "name": "default_sfixed32_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 69,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_SFIXED32",
+      "default_value": "49"
+    }, {
+      "name": "default_sfixed64_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 70,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_SFIXED64",
+      "default_value": "-50"
+    }, {
+      "name": "default_float_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 71,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_FLOAT",
+      "default_value": "51.5"
+    }, {
+      "name": "default_double_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 72,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_DOUBLE",
+      "default_value": "52000"
+    }, {
+      "name": "default_bool_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 73,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_BOOL",
+      "default_value": "true"
+    }, {
+      "name": "default_string_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 74,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_STRING",
+      "default_value": "hello"
+    }, {
+      "name": "default_bytes_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 75,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_BYTES",
+      "default_value": "world"
+    }, {
+      "name": "default_nested_enum_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 81,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_ENUM",
+      "type_name": ".protobuf_unittest.TestAllTypes.NestedEnum",
+      "default_value": "BAR"
+    }, {
+      "name": "default_foreign_enum_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 82,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_ENUM",
+      "type_name": ".protobuf_unittest.ForeignEnum",
+      "default_value": "FOREIGN_BAR"
+    }, {
+      "name": "default_import_enum_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 83,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_ENUM",
+      "type_name": ".protobuf_unittest_import.ImportEnum",
+      "default_value": "IMPORT_BAR"
+    }, {
+      "name": "default_string_piece_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 84,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_STRING",
+      "default_value": "abc",
+      "options": {
+        "ctype": "STRING_PIECE",
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "default_cord_extension",
+      "extendee": ".protobuf_unittest.TestAllExtensions",
+      "number": 85,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_STRING",
+      "default_value": "123",
+      "options": {
+        "ctype": "CORD",
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "my_extension_string",
+      "extendee": ".protobuf_unittest.TestFieldOrderings",
+      "number": 50,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_STRING"
+    }, {
+      "name": "my_extension_int",
+      "extendee": ".protobuf_unittest.TestFieldOrderings",
+      "number": 5,
+      "label": "LABEL_OPTIONAL",
+      "type": "TYPE_INT32"
+    }, {
+      "name": "packed_int32_extension",
+      "extendee": ".protobuf_unittest.TestPackedExtensions",
+      "number": 90,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_INT32",
+      "options": {
+        "packed": true,
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "packed_int64_extension",
+      "extendee": ".protobuf_unittest.TestPackedExtensions",
+      "number": 91,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_INT64",
+      "options": {
+        "packed": true,
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "packed_uint32_extension",
+      "extendee": ".protobuf_unittest.TestPackedExtensions",
+      "number": 92,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_UINT32",
+      "options": {
+        "packed": true,
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "packed_uint64_extension",
+      "extendee": ".protobuf_unittest.TestPackedExtensions",
+      "number": 93,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_UINT64",
+      "options": {
+        "packed": true,
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "packed_sint32_extension",
+      "extendee": ".protobuf_unittest.TestPackedExtensions",
+      "number": 94,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_SINT32",
+      "options": {
+        "packed": true,
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "packed_sint64_extension",
+      "extendee": ".protobuf_unittest.TestPackedExtensions",
+      "number": 95,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_SINT64",
+      "options": {
+        "packed": true,
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "packed_fixed32_extension",
+      "extendee": ".protobuf_unittest.TestPackedExtensions",
+      "number": 96,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_FIXED32",
+      "options": {
+        "packed": true,
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "packed_fixed64_extension",
+      "extendee": ".protobuf_unittest.TestPackedExtensions",
+      "number": 97,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_FIXED64",
+      "options": {
+        "packed": true,
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "packed_sfixed32_extension",
+      "extendee": ".protobuf_unittest.TestPackedExtensions",
+      "number": 98,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_SFIXED32",
+      "options": {
+        "packed": true,
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "packed_sfixed64_extension",
+      "extendee": ".protobuf_unittest.TestPackedExtensions",
+      "number": 99,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_SFIXED64",
+      "options": {
+        "packed": true,
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "packed_float_extension",
+      "extendee": ".protobuf_unittest.TestPackedExtensions",
+      "number": 100,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_FLOAT",
+      "options": {
+        "packed": true,
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "packed_double_extension",
+      "extendee": ".protobuf_unittest.TestPackedExtensions",
+      "number": 101,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_DOUBLE",
+      "options": {
+        "packed": true,
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "packed_bool_extension",
+      "extendee": ".protobuf_unittest.TestPackedExtensions",
+      "number": 102,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_BOOL",
+      "options": {
+        "packed": true,
+        "uninterpreted_option": [ ]
+      }
+    }, {
+      "name": "packed_enum_extension",
+      "extendee": ".protobuf_unittest.TestPackedExtensions",
+      "number": 103,
+      "label": "LABEL_REPEATED",
+      "type": "TYPE_ENUM",
+      "type_name": ".protobuf_unittest.ForeignEnum",
+      "options": {
+        "packed": true,
+        "uninterpreted_option": [ ]
+      }
+    } ],
+    "options": {
+      "java_outer_classname": "UnittestProto",
+      "optimize_for": "SPEED",
+      "uninterpreted_option": [ ]
+    }
+  }, {
+    "name": "google/protobuf/unittest_import.proto",
+    "package": "protobuf_unittest_import",
+    "dependency": [ ],
+    "message_type": [ {
+      "name": "ImportMessage",
+      "field": [ {
+        "name": "d",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    } ],
+    "enum_type": [ {
+      "name": "ImportEnum",
+      "value": [ {
+        "name": "IMPORT_FOO",
+        "number": 7
+      }, {
+        "name": "IMPORT_BAR",
+        "number": 8
+      }, {
+        "name": "IMPORT_BAZ",
+        "number": 9
+      } ]
+    } ],
+    "service": [ ],
+    "extension": [ ],
+    "options": {
+      "java_package": "com.google.protobuf.test",
+      "optimize_for": "SPEED",
+      "uninterpreted_option": [ ]
+    }
+  } ]
+}

@@ -1,0 +1,769 @@
+{
+  "file": [ {
+    "name": "net/proto2/proto/descriptor.proto",
+    "package": "proto2",
+    "dependency": [ ],
+    "message_type": [ {
+      "name": "FileDescriptorSet",
+      "field": [ {
+        "name": "file",
+        "number": 1,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.FileDescriptorProto"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "FileDescriptorProto",
+      "field": [ {
+        "name": "name",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "package",
+        "number": 2,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "dependency",
+        "number": 3,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "message_type",
+        "number": 4,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.DescriptorProto"
+      }, {
+        "name": "enum_type",
+        "number": 5,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.EnumDescriptorProto"
+      }, {
+        "name": "service",
+        "number": 6,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.ServiceDescriptorProto"
+      }, {
+        "name": "extension",
+        "number": 7,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.FieldDescriptorProto"
+      }, {
+        "name": "options",
+        "number": 8,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.FileOptions"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "DescriptorProto",
+      "field": [ {
+        "name": "name",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "field",
+        "number": 2,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.FieldDescriptorProto"
+      }, {
+        "name": "extension",
+        "number": 6,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.FieldDescriptorProto"
+      }, {
+        "name": "nested_type",
+        "number": 3,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.DescriptorProto"
+      }, {
+        "name": "enum_type",
+        "number": 4,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.EnumDescriptorProto"
+      }, {
+        "name": "extension_range",
+        "number": 5,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.DescriptorProto.ExtensionRange"
+      }, {
+        "name": "options",
+        "number": 7,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.MessageOptions"
+      } ],
+      "nested_type": [ {
+        "name": "ExtensionRange",
+        "field": [ {
+          "name": "start",
+          "number": 1,
+          "label": "LABEL_OPTIONAL",
+          "type": "TYPE_INT32"
+        }, {
+          "name": "end",
+          "number": 2,
+          "label": "LABEL_OPTIONAL",
+          "type": "TYPE_INT32"
+        } ],
+        "nested_type": [ ],
+        "enum_type": [ ],
+        "extension_range": [ ],
+        "extension": [ ]
+      } ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "FieldDescriptorProto",
+      "field": [ {
+        "name": "name",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "number",
+        "number": 3,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "label",
+        "number": 4,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_ENUM",
+        "type_name": ".proto2.FieldDescriptorProto.Label"
+      }, {
+        "name": "type",
+        "number": 5,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_ENUM",
+        "type_name": ".proto2.FieldDescriptorProto.Type"
+      }, {
+        "name": "type_name",
+        "number": 6,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "extendee",
+        "number": 2,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "default_value",
+        "number": 7,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "options",
+        "number": 8,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.FieldOptions"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ {
+        "name": "Type",
+        "value": [ {
+          "name": "TYPE_DOUBLE",
+          "number": 1
+        }, {
+          "name": "TYPE_FLOAT",
+          "number": 2
+        }, {
+          "name": "TYPE_INT64",
+          "number": 3
+        }, {
+          "name": "TYPE_UINT64",
+          "number": 4
+        }, {
+          "name": "TYPE_INT32",
+          "number": 5
+        }, {
+          "name": "TYPE_FIXED64",
+          "number": 6
+        }, {
+          "name": "TYPE_FIXED32",
+          "number": 7
+        }, {
+          "name": "TYPE_BOOL",
+          "number": 8
+        }, {
+          "name": "TYPE_STRING",
+          "number": 9
+        }, {
+          "name": "TYPE_GROUP",
+          "number": 10
+        }, {
+          "name": "TYPE_MESSAGE",
+          "number": 11
+        }, {
+          "name": "TYPE_BYTES",
+          "number": 12
+        }, {
+          "name": "TYPE_UINT32",
+          "number": 13
+        }, {
+          "name": "TYPE_ENUM",
+          "number": 14
+        }, {
+          "name": "TYPE_SFIXED32",
+          "number": 15
+        }, {
+          "name": "TYPE_SFIXED64",
+          "number": 16
+        }, {
+          "name": "TYPE_SINT32",
+          "number": 17
+        }, {
+          "name": "TYPE_SINT64",
+          "number": 18
+        } ]
+      }, {
+        "name": "Label",
+        "value": [ {
+          "name": "LABEL_OPTIONAL",
+          "number": 1
+        }, {
+          "name": "LABEL_REQUIRED",
+          "number": 2
+        }, {
+          "name": "LABEL_REPEATED",
+          "number": 3
+        } ]
+      } ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "EnumDescriptorProto",
+      "field": [ {
+        "name": "name",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "value",
+        "number": 2,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.EnumValueDescriptorProto"
+      }, {
+        "name": "options",
+        "number": 3,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.EnumOptions"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "EnumValueDescriptorProto",
+      "field": [ {
+        "name": "name",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "number",
+        "number": 2,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32"
+      }, {
+        "name": "options",
+        "number": 3,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.EnumValueOptions"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "ServiceDescriptorProto",
+      "field": [ {
+        "name": "name",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "method",
+        "number": 2,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.MethodDescriptorProto"
+      }, {
+        "name": "options",
+        "number": 3,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.ServiceOptions"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "MethodDescriptorProto",
+      "field": [ {
+        "name": "name",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "input_type",
+        "number": 2,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "output_type",
+        "number": 3,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "options",
+        "number": 4,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.MethodOptions"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    }, {
+      "name": "FileOptions",
+      "field": [ {
+        "name": "cc_api_version",
+        "number": 2,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32",
+        "default_value": "2"
+      }, {
+        "name": "java_package",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "py_api_version",
+        "number": 4,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32",
+        "default_value": "2"
+      }, {
+        "name": "java_api_version",
+        "number": 5,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32",
+        "default_value": "2"
+      }, {
+        "name": "java_use_javaproto2",
+        "number": 6,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BOOL",
+        "default_value": "true"
+      }, {
+        "name": "java_java5_enums",
+        "number": 7,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BOOL",
+        "default_value": "true"
+      }, {
+        "name": "java_generate_rpc_baseimpl",
+        "number": 13,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BOOL",
+        "default_value": "false"
+      }, {
+        "name": "java_outer_classname",
+        "number": 8,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "java_multiple_files",
+        "number": 10,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BOOL",
+        "default_value": "false"
+      }, {
+        "name": "optimize_for",
+        "number": 9,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_ENUM",
+        "type_name": ".proto2.FileOptions.OptimizeMode",
+        "default_value": "SPEED"
+      }, {
+        "name": "go_package",
+        "number": 11,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "javascript_package",
+        "number": 12,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "szl_api_version",
+        "number": 14,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT32",
+        "default_value": "1"
+      }, {
+        "name": "uninterpreted_option",
+        "number": 999,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.UninterpretedOption"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ {
+        "name": "OptimizeMode",
+        "value": [ {
+          "name": "SPEED",
+          "number": 1
+        }, {
+          "name": "CODE_SIZE",
+          "number": 2
+        }, {
+          "name": "LITE_RUNTIME",
+          "number": 3
+        } ]
+      } ],
+      "extension_range": [ {
+        "start": 1000,
+        "end": 536870912
+      } ],
+      "extension": [ ]
+    }, {
+      "name": "MessageOptions",
+      "field": [ {
+        "name": "message_set_wire_format",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BOOL",
+        "default_value": "false"
+      }, {
+        "name": "no_standard_descriptor_accessor",
+        "number": 2,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BOOL",
+        "default_value": "false"
+      }, {
+        "name": "uninterpreted_option",
+        "number": 999,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.UninterpretedOption"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ {
+        "start": 1000,
+        "end": 536870912
+      } ],
+      "extension": [ ]
+    }, {
+      "name": "FieldOptions",
+      "field": [ {
+        "name": "ctype",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_ENUM",
+        "type_name": ".proto2.FieldOptions.CType"
+      }, {
+        "name": "packed",
+        "number": 2,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BOOL"
+      }, {
+        "name": "deprecated",
+        "number": 3,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BOOL",
+        "default_value": "false"
+      }, {
+        "name": "experimental_map_key",
+        "number": 9,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "uninterpreted_option",
+        "number": 999,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.UninterpretedOption"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ {
+        "name": "CType",
+        "value": [ {
+          "name": "CORD",
+          "number": 1
+        }, {
+          "name": "STRING_PIECE",
+          "number": 2
+        } ]
+      } ],
+      "extension_range": [ {
+        "start": 1000,
+        "end": 536870912
+      } ],
+      "extension": [ ]
+    }, {
+      "name": "EnumOptions",
+      "field": [ {
+        "name": "proto1_name",
+        "number": 1,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "uninterpreted_option",
+        "number": 999,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.UninterpretedOption"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ {
+        "start": 1000,
+        "end": 536870912
+      } ],
+      "extension": [ ]
+    }, {
+      "name": "EnumValueOptions",
+      "field": [ {
+        "name": "uninterpreted_option",
+        "number": 999,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.UninterpretedOption"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ {
+        "start": 1000,
+        "end": 536870912
+      } ],
+      "extension": [ ]
+    }, {
+      "name": "ServiceOptions",
+      "field": [ {
+        "name": "failure_detection_delay",
+        "number": 16,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_DOUBLE",
+        "default_value": "-1"
+      }, {
+        "name": "uninterpreted_option",
+        "number": 999,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.UninterpretedOption"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ ],
+      "extension_range": [ {
+        "start": 1000,
+        "end": 536870912
+      } ],
+      "extension": [ ]
+    }, {
+      "name": "MethodOptions",
+      "field": [ {
+        "name": "protocol",
+        "number": 7,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_ENUM",
+        "type_name": ".proto2.MethodOptions.Protocol",
+        "default_value": "TCP"
+      }, {
+        "name": "deadline",
+        "number": 8,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_DOUBLE",
+        "default_value": "-1"
+      }, {
+        "name": "duplicate_suppression",
+        "number": 9,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BOOL",
+        "default_value": "false"
+      }, {
+        "name": "fail_fast",
+        "number": 10,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BOOL",
+        "default_value": "false"
+      }, {
+        "name": "client_logging",
+        "number": 11,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_SINT32",
+        "default_value": "-1"
+      }, {
+        "name": "server_logging",
+        "number": 12,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_SINT32",
+        "default_value": "-1"
+      }, {
+        "name": "security_level",
+        "number": 13,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_ENUM",
+        "type_name": ".proto2.MethodOptions.SecurityLevel",
+        "default_value": "NONE"
+      }, {
+        "name": "response_format",
+        "number": 15,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_ENUM",
+        "type_name": ".proto2.MethodOptions.Format",
+        "default_value": "UNCOMPRESSED"
+      }, {
+        "name": "request_format",
+        "number": 17,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_ENUM",
+        "type_name": ".proto2.MethodOptions.Format",
+        "default_value": "UNCOMPRESSED"
+      }, {
+        "name": "stream_type",
+        "number": 18,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "uninterpreted_option",
+        "number": 999,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.UninterpretedOption"
+      } ],
+      "nested_type": [ ],
+      "enum_type": [ {
+        "name": "Protocol",
+        "value": [ {
+          "name": "TCP",
+          "number": 0
+        }, {
+          "name": "UDP",
+          "number": 1
+        } ]
+      }, {
+        "name": "SecurityLevel",
+        "value": [ {
+          "name": "NONE",
+          "number": 0
+        }, {
+          "name": "INTEGRITY",
+          "number": 1
+        }, {
+          "name": "PRIVACY_AND_INTEGRITY",
+          "number": 2
+        }, {
+          "name": "STRONG_PRIVACY_AND_INTEGRITY",
+          "number": 3
+        } ]
+      }, {
+        "name": "Format",
+        "value": [ {
+          "name": "UNCOMPRESSED",
+          "number": 0
+        }, {
+          "name": "ZIPPY_COMPRESSED",
+          "number": 1
+        } ]
+      } ],
+      "extension_range": [ {
+        "start": 1000,
+        "end": 536870912
+      } ],
+      "extension": [ ]
+    }, {
+      "name": "UninterpretedOption",
+      "field": [ {
+        "name": "name",
+        "number": 2,
+        "label": "LABEL_REPEATED",
+        "type": "TYPE_MESSAGE",
+        "type_name": ".proto2.UninterpretedOption.NamePart"
+      }, {
+        "name": "identifier_value",
+        "number": 3,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_STRING"
+      }, {
+        "name": "positive_int_value",
+        "number": 4,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_UINT64"
+      }, {
+        "name": "negative_int_value",
+        "number": 5,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_INT64"
+      }, {
+        "name": "double_value",
+        "number": 6,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_DOUBLE"
+      }, {
+        "name": "string_value",
+        "number": 7,
+        "label": "LABEL_OPTIONAL",
+        "type": "TYPE_BYTES"
+      } ],
+      "nested_type": [ {
+        "name": "NamePart",
+        "field": [ {
+          "name": "name_part",
+          "number": 1,
+          "label": "LABEL_REQUIRED",
+          "type": "TYPE_STRING"
+        }, {
+          "name": "is_extension",
+          "number": 2,
+          "label": "LABEL_REQUIRED",
+          "type": "TYPE_BOOL"
+        } ],
+        "nested_type": [ ],
+        "enum_type": [ ],
+        "extension_range": [ ],
+        "extension": [ ]
+      } ],
+      "enum_type": [ ],
+      "extension_range": [ ],
+      "extension": [ ]
+    } ],
+    "enum_type": [ ],
+    "service": [ ],
+    "extension": [ ],
+    "options": {
+      "java_package": "com.google.protobuf",
+      "java_outer_classname": "DescriptorProtos",
+      "optimize_for": "SPEED",
+      "uninterpreted_option": [ ]
+    }
+  } ]
+}

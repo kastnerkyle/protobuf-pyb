@@ -1,0 +1,20 @@
+{
+  "file": [
+    {
+      "message_type": [
+        {
+          "field": [
+            {
+              "label": "LABEL_REQUIRED", 
+              "name": "a", 
+              "number": 1, 
+              "type": "TYPE_INT32"
+            }
+          ], 
+          "name": "Test1"
+        }
+      ], 
+      "name": "test.proto"
+    }
+  ]
+}
