@@ -35,7 +35,7 @@ if len(sys.argv) != 2:
 
 db = pyb.DescriptorSet.FromJsonFile(
     'testdata/addressbook/addressbook.desc.json-from-protoc')
-addressbook = db.MakeTypes()
+addressbook = db.AllTypes()
 
 # Read the existing address book.
 f = open(sys.argv[1], "rb")
