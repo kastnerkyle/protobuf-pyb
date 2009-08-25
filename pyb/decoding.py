@@ -7,7 +7,6 @@ __author__ = 'Andy Chu'
 
 
 import struct
-import sys
 
 
 class Error(Exception):
@@ -29,6 +28,7 @@ def ZigZagDecode(value):
 
 
 def DecodeVarInt(s, pos):
+  """Returns the decoded variable integer and the new position in buffer s."""
   i = 0
   bitpos = 0
   while True:
@@ -47,13 +47,13 @@ def DecodeVarInt(s, pos):
 
 
 def DecodePart(s, pos, message_type, root, indent=0):
-  """Decode a byte string, returning a Message.
+  """Decode a byte string, using the given message type.
 
   Args:
     s: Byte string to decode
     pos: index to start decoding from
-    message_type: A subclass of Message for decoding this level
-    root: The root object
+    message_type: A subclass of Message for decoding this level of the tree
+    root: The root object, instance of message_type (TODO: simplify)
   """
   fields = message_type._fields_by_tag
 
@@ -62,14 +62,11 @@ def DecodePart(s, pos, message_type, root, indent=0):
 
   n = len(s)
   while pos < n:
-    #print 'pos', pos
     key, pos = DecodeVarInt(s, pos)
-    #print 'key', key
     tag = key >> 3
     wire_type = key & 0x07
 
     if wire_type == 4:  # End group
-      #print '*** EARLY RETURN'
       return root, pos  # EARLY RETURN
 
     try:
@@ -77,13 +74,13 @@ def DecodePart(s, pos, message_type, root, indent=0):
     except KeyError:
       # IGNORE unknown field
       #print 'IGNORE unknown tag %s' % tag
-      raise DecodeError('IGNORE unknown tag %s' % tag)
       continue
 
     name = field['name']
     field_type = field['type']
 
-    #print space, '---', 'tag:', tag, name, 'wire_type:', wire_type, 'field_type:', field_type
+    #print space, '---', 'tag:', tag, name, 'wire_type:', wire_type,
+    #'field_type:', field_type
 
     if wire_type == 0:  # varint
       value, pos = DecodeVarInt(s, pos)
@@ -108,7 +105,7 @@ def DecodePart(s, pos, message_type, root, indent=0):
       elif field_type == 'TYPE_BOOL':
         value = bool(value)
 
-      # Must be: TYPE_UINT64, TYPE_UINT32, then do nothing
+      # Must be: TYPE_UINT64, TYPE_UINT32.  Do nothing
 
     elif wire_type == 1:  # 64 bit
       if field_type == 'TYPE_DOUBLE':
@@ -137,22 +134,14 @@ def DecodePart(s, pos, message_type, root, indent=0):
         child = subtype()
         value, _ = DecodePart(value, 0, subtype, child, indent=indent+2)
       elif field_type == 'TYPE_STRING':
-        # UTF-8 encoding
-        #print space, name, tag, repr(value), '!!'
         try:
-          value = unicode(value, 'utf-8')
+          value = unicode(value, 'utf-8')  # UTF-8 encoding
         except UnicodeDecodeError, e:
           raise DecodeError(
               "Couldn't decode string %r (position %s)" % (s[pos:pos+20], pos))
       elif field_type == 'TYPE_BYTES':
-        # TODO: This is useful for JSON, but we're not always decoding to JSON!
-        # Should there be a flag here?  Or this really belongs in
-        # EncodeMessageAsJson, and your unified Record type.
-
-        # JSON and JavaScript can't represent bytes directly, only strings of
-        # Unicode characters, which may have different byte representations in
-        # memory.  So use base64 for
-        #value = base64.b64encode(value)
+        # Leave it alone.  NOTE: When encoding as JSON, bytes are
+        # base64-encoded?
         pass
       else:
         raise DecodeError('Unknown field_type %s' % field_type)
@@ -160,7 +149,7 @@ def DecodePart(s, pos, message_type, root, indent=0):
       pos += length
 
     elif wire_type == 3:  # Start group
-      # Docs say these are deprecated.  But old messages have them.
+      # These are deprecated in proto2, but have to support old messages.
       if field_type == 'TYPE_GROUP':
         try:
           subtype = message_type.type_index[field['type_name']]
@@ -171,13 +160,10 @@ def DecodePart(s, pos, message_type, root, indent=0):
         # NOTE: we pass the ORIGINAL string and the current position, since we
         # don't know how long the group is.
         value, pos = DecodePart(s, pos, subtype, child, indent=indent+2)
-        #print 'GROUP', value, pos
       else:
         raise DecodeError('Unknown field_type %s' % field_type)
 
     elif wire_type == 5:  # 32 bit
-      # TYPE_DOUBLE, TYPE_FLOAT -- float()
-
       if field_type == 'TYPE_FLOAT':
         format = 'f'
       else:
@@ -192,14 +178,10 @@ def DecodePart(s, pos, message_type, root, indent=0):
     else:
       raise DecodeError('Invalid wire type %s' % wire_type)
 
-    #print space, name, value
-
     if field['label'] == 'LABEL_REPEATED':
-      # Will return [] if not set yet
-      oldvalue = getattr(root, name)
+      oldvalue = getattr(root, name)  # Will return [] if not set yet
       oldvalue.append(value)
     else:
       setattr(root, name, value)
 
-  #print space, '*** NORMAL RETURN.  pos:', pos
   return root, pos
