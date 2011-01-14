@@ -20,7 +20,20 @@ class Error(Exception):
 
 class AttrDict(dict):
   def __getattr__(self, attr):
+    """Called when the attribute doesn't exist "statically". """
     try:
       return self.__getitem__(attr)
     except KeyError:
       raise AttributeError
+
+
+
+def _LoadDescriptorProto():
+  f = open('descriptor.proto.json')
+  d = json.load(f, object_hook=AttrDict)
+  f.close()
+  return d
+
+descriptor_proto = _LoadDescriptorProto()
+print type(descriptor_proto)
+print descriptor_proto.keys()
