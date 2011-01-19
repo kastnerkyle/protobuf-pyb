@@ -187,8 +187,11 @@ class DescriptorSetTest(testy.Test):
   DATA_RELATIVE_PATH = 'testdata/addressbook'
 
   def setUpOnce(self):
-    self.desc_set = self.data.String('addressbook.desc.json-from-protoc')
-    self.db = pyb.DescriptorSet.FromJson(self.desc_set)
+    #self.desc_set = self.data.String('addressbook.desc.json-from-protoc')
+    #self.db = pyb.DescriptorSet.FromJson(self.desc_set)
+
+    self.desc_set = self.data.Bytes('addressbook.desc.encoded')
+    self.db = pyb.DescriptorSet.FromBinary(self.desc_set)
 
     self.AddressBook = self.db.Type('AddressBook')
     self.Person = self.db.Type('Person')

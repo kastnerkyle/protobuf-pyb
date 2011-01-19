@@ -264,7 +264,13 @@ class DescriptorSet(object):
   @staticmethod
   def FromBinary(desc_set):
     """Construct from FileDescriptorSet encoded as binary."""
-    pass
+    # TODO: implement this.
+    # 1. the FileDescriptorSet should be loaded as JSON/baked as Python with
+    # json2py.  One thing that is weird is that you would need enum constants to
+    # make them uniform, like TYPE_STRING.
+    # 2. then it can be used to decode the descriptor into an object. 
+    # 3. then the descriptor can be used to decode a raw message.
+    #return DescriptorSet(desc_set_obj=desc_set_obj)
 
   def Type(self, root):
     """Retrieve a specific type.
