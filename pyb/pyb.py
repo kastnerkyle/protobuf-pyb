@@ -310,6 +310,7 @@ def ToDict(value):
     return result
 
   else:  # A primitive type
+    # NOTE: This doesn't handle enum names, breaks testDecodeAsJson.
     return value
 
 

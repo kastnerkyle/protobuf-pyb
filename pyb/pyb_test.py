@@ -10,11 +10,12 @@ import sys
 import pprint
 import unittest
 
+# TODO: Remove these deps, or copy testy into Poly, or something
 from pan.core import json
 from pan.test import testy
 
 import pyb  # module under test
-import raw_decode  # module under test
+import raw_decode
 
 
 class OfficialTest(testy.Test):
