@@ -1,18 +1,20 @@
 #!/usr/bin/python -S
 """
 pyb_tool.py
+
+TODO: I got rid of the crappy pan.core.cmdapp.  But it might be good to revive
+your schema for command line tools.
 """
 
 __author__ = 'Andy Chu'
 
 
 import codecs
+import optparse
 import os
 import sys
+import json
 
-from pan.core import cmdapp
-from pan.core import json
-from pan.core import params
 
 import pyb
 import raw_decode
@@ -21,16 +23,20 @@ import raw_decode
 class Error(Exception):
   pass
 
-# This can be used with DoWork and num_threads
-PARAMS = [
-    params.RequiredString('action',
-        choices=['encode', 'decode', 'decode-raw', 'decode-desc'], pos=1),
-    params.OptionalString(
-        'input', shortcut='i', pos=2, help='Input data filename'),
-    params.OptionalString(
-        'descriptor', shortcut='d',
-        help='Descriptor (filename:message-type-name)'),
-    ]
+
+def CreateOptionsParser():
+  parser = optparse.OptionParser()
+
+  parser.add_option(
+      '-d', '--descriptor', dest='descriptor', type='str', default='',
+      help='Descriptor (filename:message-type-name)')
+
+  # This is supposed to be argv[1]?
+  parser.add_option(
+      '-i', '--input', dest='input', type='str', default='',
+      help='Input file')
+
+  return parser
 
 
 def ParseDescriptor(desc):
@@ -57,7 +63,12 @@ def main(argv):
   # schema to use.  params.py doesn't support this now.  Or it is awkward, you
   # have to do params.UNDECLARED
 
-  options = cmdapp.ParseArgv(argv, PARAMS)
+  (options, argv) = CreateOptionsParser().parse_args(argv)
+
+  try:
+    options.action = argv[1]
+  except IndexError:
+    raise Error('Usage: pyb_tool <action>')
 
   if options.input and options.input != '-':
     infile = open(options.input, 'rb')
@@ -111,7 +122,7 @@ def main(argv):
 
 if __name__ == '__main__':
   try:
-    success = main(sys.argv[1:])
+    success = main(sys.argv)
     sys.exit(not success)
   except Error, e:
     print >> sys.stderr, e.args[0]

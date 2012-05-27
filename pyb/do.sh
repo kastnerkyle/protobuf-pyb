@@ -34,4 +34,13 @@ unit() {
   "$@"
 }
 
+count() {
+  wc -l *.py
+}
+
+# Tried out tool, doesn't quite work yet
+tool-test() {
+  echo foo | ./pyb_tool.py -d foo:bar encode
+}
+
 "$@"
