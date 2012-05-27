@@ -10,23 +10,52 @@ Better version of pyb where we:
   - Lazily decode?  I don't see a need for this now, but it might fall out.
 
 
-Walk through the messageo.
+We reuse encoder.py, decoder.py, and wire_format.py from the open source Python
+implementation.
 
-FieldDecoder
-  IntDecoder, etc.
-MessageDecoder
-  It contains a DICT of field decoders!
-  { tag -> decoder }
+Now all we have to do is walk through the descriptor and construct a tree of
+decoders.
 
-  Then the decoding loop just walks through and calls these functions.
+Then we get the top level one, and call
 
-Encoding:
-  It says the tags should be encoded in order.
 
-  So you should have a LIST of encoding functions?
+# Dynamic bootstrapping, done at startup
 
-MessageEncoder:
-  see encoding.py
+descriptor_proto = json.load("the meta descriptor as JSON")
+
+meta_desc_set = MakeTypes(descriptor_proto, type_index)
+
+# This is done per message
+
+address_book_desc_bytes = <Load binary descriptor addressbook.desc.encoded>
+# decode raw data; FileDescriptorSet is equivalent of the proto file
+address_book_proto = meta_desc_set.decode("google.protobuf.FileDescriptorSet",
+                                          address_book_desc_bytes)
+# Now create encoders and decoders?
+address_book_desc = MakeTypes(address_book_proto, type_index)
+
+
+address_book_bytes = <Load binary descriptor addressbook.desc.encoded>
+
+dict = address_book_desc.decode("address_book.AddressBook, address_book_bytes)
+
+
+
+You may only need to encode XOR decode a given message type.
+
+So how about:
+
+# create an object from the data
+address_book_desc = DescriptorSet(address_book_proto, type_index)
+# get an coder
+address_book_e = address_book_desc.GetEncoder("address_book.AddressBook")
+address_book_d = address_book_desc.GetDecoder("address_book.AddressBook")
+
+<byte string> = address_book_e.encode({ person: ... })
+{ person: ... } = address_book_e.dcode(<byte string>)
+
+
+
 
 """
 
@@ -39,6 +68,9 @@ try:
   import json
 except ImportError:
   import simplejson as json
+
+import decoder
+import encoder
 
 
 class Error(Exception):
@@ -186,9 +218,17 @@ print descriptor_proto.keys()
 
 def main(argv):
   type_index = {}
+  
+  # TODO: I want to load binary descriptors.  So first load the meta descriptor,
+  # and then use that to load a adddressbook.desc.encoded.
+
   f = open('testdata/addressbook/addressbook.desc.json-from-protoc')
   d = json.load(f)
   MakeTypes(d, type_index)
+  print 'INDEX', type_index
+
+  type_index = {}
+  MakeTypes(descriptor_proto, type_index)
   print 'INDEX', type_index
 
 
