@@ -67,4 +67,24 @@ protoc-decode() {
   fi
 }
 
+# Make the tiny protobuf as in:
+# http://code.google.com/apis/protocolbuffers/docs/encoding.html
+
+maketest() {
+  set -o errexit
+
+  echo 'a: 150' | protoc --encode Test1 testdata/trivial/test.proto > test.bin
+  echo 'Wrote file "test"'
+
+  # WTF, hexdump is weird
+  hex test.bin
+  echo
+}
+
+hex() {
+  # WTF, hexdump is weird
+  # TODO: Make a generic script out of this
+  hexdump -v -e '"" 1/1 "%02X" " "' "$@"
+}
+
 "$@"
