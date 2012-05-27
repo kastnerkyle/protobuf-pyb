@@ -226,7 +226,11 @@ class DescriptorSet(object):
   "database" has the wrong connotation here.
   """
   def __init__(self, desc_pool=None, desc_set_dict=None):
+    # TODO: This appears unused?
     self.desc_pool = desc_pool
+
+    # Descriptor set as a dictionary, i.e. as from a JSON file.  If it were
+    # bootstrapped you might have FromDescriptorSet.
     self.desc_set_dict = desc_set_dict
 
     # Index from type names -> Message subclasses
@@ -254,6 +258,7 @@ class DescriptorSet(object):
   def FromJsonFile(filename):
     """Construct from FileDescriptorSet encoded as JSON."""
     f = codecs.open(filename, encoding='utf-8')
+    # Uh, json.load() might be better
     contents = f.read()
     f.close()
     return DescriptorSet.FromJson(contents)

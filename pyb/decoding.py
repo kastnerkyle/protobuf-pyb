@@ -1,6 +1,14 @@
 #!/usr/bin/python -S
 """
 decoding.py
+
+Speed optimizations:
+
+  Compile the schema into tag -> decoding function?
+  Then just dispatch on the tag.
+
+  Would need a benchmark to do that first.  The existing method is not too slow.
+
 """
 
 __author__ = 'Andy Chu'
@@ -177,6 +185,8 @@ def DecodePart(s, pos, message_type, root, indent=0):
 
     else:
       raise DecodeError('Invalid wire type %s' % wire_type)
+
+    # TODO: Instead of setattr, have a callback here
 
     if field['label'] == 'LABEL_REPEATED':
       oldvalue = getattr(root, name)  # Will return [] if not set yet

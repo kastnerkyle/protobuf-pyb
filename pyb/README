@@ -16,6 +16,7 @@ For Poly, I think I need another interface.  No types!
   
   db = pyb.DescriptorSet.FromBinary('addressbook.desc.encoded')
   address_book_pb = db.AllTypes()
+
   address_book_pb.AddressBook.FromDict(
     { person: [
         { name: "Andy",
@@ -35,6 +36,28 @@ For Poly, I think I need another interface.  No types!
       ]
     })
 
+
+  # Hm, there already is a ToDict() thing.  Is that what you want?  Maybe better
+  # to minimize it.
+
+  a = address_book_pb.AddressBook()
+  d = a.ToDict()
+  # d is now { "person": }
+
+  The thing is that in Poly I don't care about internal Python types.  It could
+  be a simpler interface like:
+
+  desc_set = pyb.DescriptorSet("addressbook.desc.encoded")
+
+  dict = desc_set.decode("address_book.Person", "some binary data")
+
+  encoded = desc_set.encode("address_book.Person", { "foo": 1 })
+
+  Do you need the whole Python type tree?  It might not be that bad I guess.
+
+  Otherwise it calls decoding.DecodePart in the constructor, which does all this
+  setaddr BS.  You don't need that.  Just fork decoding.py (again).  And write
+  encoding.py.
 
 
 raw_decode.py -- Decode without a schema.  Move to bin/?
