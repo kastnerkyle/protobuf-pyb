@@ -53,4 +53,18 @@ list_people() {
   examples/list_people.py testdata/addressbook/addressbook.encoded
 }
 
+protoc-decode() {
+  local filename=$1
+  echo 'decode_raw:'
+  echo '-----'
+  cat $filename | protoc --decode_raw
+  echo
+  echo 'decode:'
+  echo '-----'
+  if true; then
+    cat $filename | protoc --decode tutorial.AddressBook \
+      testdata/addressbook/addressbook.proto
+  fi
+}
+
 "$@"
