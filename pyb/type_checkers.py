@@ -45,11 +45,12 @@ TYPE_TO_DESERIALIZE_METHOD: A dictionary with field types and deserialization
 
 __author__ = 'robinson@google.com (Will Robinson)'
 
-from google.protobuf.internal import decoder
-from google.protobuf.internal import encoder
-from google.protobuf.internal import wire_format
-from google.protobuf import descriptor
+import decoder
+import encoder
+import wire_format
+#import descriptor
 
+# pyb EDIT: Have to get this from the JSON meta-descriptor.
 _FieldDescriptor = descriptor.FieldDescriptor
 
 
