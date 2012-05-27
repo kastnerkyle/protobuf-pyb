@@ -81,9 +81,8 @@ we repeatedly read a tag, look up the corresponding decoder, and invoke it.
 __author__ = 'kenton@google.com (Kenton Varda)'
 
 import struct
-from google.protobuf.internal import encoder
-from google.protobuf.internal import wire_format
-from google.protobuf import message
+import encoder
+import wire_format
 
 
 # This will overflow and thus become IEEE-754 "infinity".  We would use
@@ -95,7 +94,13 @@ _NAN = _POS_INF * 0
 
 # This is not for optimization, but rather to avoid conflicts with local
 # variables named "message".
-_DecodeError = message.DecodeError
+#_DecodeError = message.DecodeError
+
+# PYB EDIT -- we don't have the message module.
+class DecodeError(Exception):
+  pass
+
+_DecodeError = DecodeError
 
 
 def _VarintDecoder(mask):

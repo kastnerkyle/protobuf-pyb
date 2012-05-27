@@ -33,8 +33,11 @@
 __author__ = 'robinson@google.com (Will Robinson)'
 
 import struct
-from google.protobuf import descriptor
-from google.protobuf import message
+
+
+# TODO: Perhaps should be pyb.EncodeError, pyb.DecodeError
+class EncodeError(Exception):
+  pass
 
 
 TAG_TYPE_BITS = 3  # Number of bits used to hold type info in a proto tag.
@@ -86,7 +89,7 @@ def PackTag(field_number, wire_type):
     wire_type: One of the WIRETYPE_* constants.
   """
   if not 0 <= wire_type <= _WIRETYPE_MAX:
-    raise message.EncodeError('Unknown wire type: %d' % wire_type)
+    raise EncodeError('Unknown wire type: %d' % wire_type)
   return (field_number << TAG_TYPE_BITS) | wire_type
 
 
@@ -244,25 +247,27 @@ def _VarUInt64ByteSizeNoTag(uint64):
   if uint64 <= 0xffffffffffffff: return 8
   if uint64 <= 0x7fffffffffffffff: return 9
   if uint64 > UINT64_MAX:
-    raise message.EncodeError('Value out of range: %d' % uint64)
+    raise EncodeError('Value out of range: %d' % uint64)
   return 10
 
 
-NON_PACKABLE_TYPES = (
-  descriptor.FieldDescriptor.TYPE_STRING,
-  descriptor.FieldDescriptor.TYPE_GROUP,
-  descriptor.FieldDescriptor.TYPE_MESSAGE,
-  descriptor.FieldDescriptor.TYPE_BYTES
-)
+# PYB EDIT: Don't need this function, and don't have 'descriptor' dependency.
 
-
-def IsTypePackable(field_type):
-  """Return true iff packable = true is valid for fields of this type.
-
-  Args:
-    field_type: a FieldDescriptor::Type value.
-
-  Returns:
-    True iff fields of this type are packable.
-  """
-  return field_type not in NON_PACKABLE_TYPES
+#NON_PACKABLE_TYPES = (
+#  descriptor.FieldDescriptor.TYPE_STRING,
+#  descriptor.FieldDescriptor.TYPE_GROUP,
+#  descriptor.FieldDescriptor.TYPE_MESSAGE,
+#  descriptor.FieldDescriptor.TYPE_BYTES
+#)
+#
+#
+#def IsTypePackable(field_type):
+#  """Return true iff packable = true is valid for fields of this type.
+#
+#  Args:
+#    field_type: a FieldDescriptor::Type value.
+#
+#  Returns:
+#    True iff fields of this type are packable.
+#  """
+#  return field_type not in NON_PACKABLE_TYPES

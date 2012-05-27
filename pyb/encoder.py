@@ -67,7 +67,7 @@ sizer rather than when calling them.  In particular:
 __author__ = 'kenton@google.com (Kenton Varda)'
 
 import struct
-from google.protobuf.internal import wire_format
+import wire_format
 
 
 # This will overflow and thus become IEEE-754 "infinity".  We would use
