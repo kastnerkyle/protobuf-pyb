@@ -1,0 +1,43 @@
+pyb
+---
+
+pyb -- Main interface.
+
+  Load a pyb.DescriptorSet.  Create types.  Then use the types to decode byte
+  strings.
+
+  TODO: Need encoding.  Create a type.  Then call encode() on it to create a
+  byte string.
+
+For Poly, I think I need another interface.  No types!
+
+  Takes a Dict.
+  And then a schema.
+  
+  db = pyb.DescriptorSet.FromBinary('addressbook.desc.encoded')
+  address_book_pb = db.AllTypes()
+  address_book_pb.AddressBook.FromDict(
+    { person: [
+        { name: "Andy",
+          email: "andy@foo.com"
+          phone: [
+            { number: "123-345-5655"
+              type: "MOBILE"
+            },
+            { number: "123-345-5655"
+              type: "WORK"
+            },
+          ]
+        },
+        { name: "Bob",
+          email: "bob@foo.com"
+        }
+      ]
+    })
+
+
+
+raw_decode.py -- Decode without a schema.  Move to bin/?
+
+pyb_tool.py -- Command line tool.  Maybe move to bin/
+
