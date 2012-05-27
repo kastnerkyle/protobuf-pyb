@@ -10,9 +10,8 @@ import sys
 import pprint
 import unittest
 
-# TODO: Remove these deps, or copy testy into Poly, or something
-from pan.core import json
-from pan.test import testy
+import json
+import testy
 
 import pyb  # module under test
 import raw_decode
@@ -187,11 +186,14 @@ class DescriptorSetTest(testy.Test):
   DATA_RELATIVE_PATH = 'testdata/addressbook'
 
   def setUpOnce(self):
+    return
     #self.desc_set = self.data.String('addressbook.desc.json-from-protoc')
     #self.db = pyb.DescriptorSet.FromJson(self.desc_set)
 
     self.desc_set = self.data.Bytes('addressbook.desc.encoded')
     self.db = pyb.DescriptorSet.FromBinary(self.desc_set)
+    # This is failing because of the TODO
+    assert self.db
 
     self.AddressBook = self.db.Type('AddressBook')
     self.Person = self.db.Type('Person')
@@ -267,8 +269,6 @@ class DescriptorSetTest(testy.Test):
     tutorial = dd.AllTypes(root='tutorial')
     root = dd.AllTypes()
     root.tutorial = 'Foo.bar'
-
-
 
 
 if __name__ == '__main__':

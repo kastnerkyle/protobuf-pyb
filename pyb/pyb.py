@@ -19,12 +19,9 @@ import sys
 import decoding
 
 try:
-  from pan.core import json
+  import simplejson as json
 except ImportError:
-  try:
-    import simplejson as json  # Third party
-  except ImportError:
-    import json  # Python 2.6?
+  import json  # Python 2.6
 
 
 class Error(Exception):

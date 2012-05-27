@@ -28,4 +28,10 @@ addr() {
   build-cpp testdata/addressbook/addressbook.proto
 }
 
+# bash completion
+unit() {
+  export PYTHONPATH=../../taste/taste
+  "$@"
+}
+
 "$@"
