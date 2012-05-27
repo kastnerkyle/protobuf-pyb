@@ -94,4 +94,12 @@ hex() {
   hexdump -v -e '"" 1/1 "%02X" " "' "$@"
 }
 
+bootstrap() {
+  export PYTHONPATH=../json-template/python
+  local out=pyb/descriptor.py
+  cat data/descriptor.proto.json | tools/bootstrap.py | tee $out
+  echo "Wrote $out"
+
+}
+
 "$@"

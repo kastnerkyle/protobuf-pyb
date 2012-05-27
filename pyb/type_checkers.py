@@ -45,10 +45,10 @@ TYPE_TO_DESERIALIZE_METHOD: A dictionary with field types and deserialization
 
 __author__ = 'robinson@google.com (Will Robinson)'
 
+import descriptor  # generated enum
 import decoder
 import encoder
 import wire_format
-#import descriptor
 
 # pyb EDIT: Have to get this from the JSON meta-descriptor.
 _FieldDescriptor = descriptor.FieldDescriptor
@@ -151,20 +151,23 @@ class Uint64ValueChecker(IntValueChecker):
   _MAX = (1 << 64) - 1
 
 
+# PYB edit: can't find these enums now, and these are not used in our 
+# subset of the code.
+
 # Type-checkers for all scalar CPPTYPEs.
-_VALUE_CHECKERS = {
-    _FieldDescriptor.CPPTYPE_INT32: Int32ValueChecker(),
-    _FieldDescriptor.CPPTYPE_INT64: Int64ValueChecker(),
-    _FieldDescriptor.CPPTYPE_UINT32: Uint32ValueChecker(),
-    _FieldDescriptor.CPPTYPE_UINT64: Uint64ValueChecker(),
-    _FieldDescriptor.CPPTYPE_DOUBLE: TypeChecker(
-        float, int, long),
-    _FieldDescriptor.CPPTYPE_FLOAT: TypeChecker(
-        float, int, long),
-    _FieldDescriptor.CPPTYPE_BOOL: TypeChecker(bool, int),
-    _FieldDescriptor.CPPTYPE_ENUM: Int32ValueChecker(),
-    _FieldDescriptor.CPPTYPE_STRING: TypeChecker(str),
-    }
+#_VALUE_CHECKERS = {
+#    _FieldDescriptor.CPPTYPE_INT32: Int32ValueChecker(),
+#    _FieldDescriptor.CPPTYPE_INT64: Int64ValueChecker(),
+#    _FieldDescriptor.CPPTYPE_UINT32: Uint32ValueChecker(),
+#    _FieldDescriptor.CPPTYPE_UINT64: Uint64ValueChecker(),
+#    _FieldDescriptor.CPPTYPE_DOUBLE: TypeChecker(
+#        float, int, long),
+#    _FieldDescriptor.CPPTYPE_FLOAT: TypeChecker(
+#        float, int, long),
+#    _FieldDescriptor.CPPTYPE_BOOL: TypeChecker(bool, int),
+#    _FieldDescriptor.CPPTYPE_ENUM: Int32ValueChecker(),
+#    _FieldDescriptor.CPPTYPE_STRING: TypeChecker(str),
+#    }
 
 
 # Map from field type to a function F, such that F(field_num, value)
