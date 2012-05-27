@@ -35,7 +35,7 @@ unit() {
 }
 
 count() {
-  wc -l *.py
+  wc -l pyb/*.py
 }
 
 # Tried out tool, doesn't quite work yet
