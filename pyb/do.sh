@@ -43,4 +43,14 @@ tool-test() {
   echo foo | ./pyb_tool.py -d foo:bar encode
 }
 
+# This is a proto2 example, requiring generated code
+add_person() {
+  examples/add_person.py "$@"
+}
+
+# pyb example
+list_people() {
+  examples/list_people.py testdata/addressbook/addressbook.encoded
+}
+
 "$@"

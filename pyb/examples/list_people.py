@@ -1,14 +1,14 @@
-#! /usr/bin/python
+#!/usr/bin/python
 
 # Adapted from the protobuf examples/ dir
 
+import json
 import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 #print sys.path
 import pyb
-from pan.core import json
 
 # Iterates though all people in the AddressBook and prints info about them.
 def ListPeople(address_book):
