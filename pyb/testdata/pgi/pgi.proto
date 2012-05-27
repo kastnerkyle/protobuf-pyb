@@ -1,0 +1,19 @@
+
+message AppRequest {
+  // Java turns this into getHTTPHOST(), hasHTTPHOST()
+  // The underscore is removed.
+
+  // cpp turns this into has_http_host() and set_http_host().  So it will
+  // actually cause a compiler error to have two versions.
+
+  optional string HTTP_HOST = 1;
+
+  // This becomes getHttpHost and hasHttpHost
+  optional string http_host = 2;
+}
+
+message AppResponse {
+  optional int32 status = 1;
+  optional int32 headers = 2;
+  optional string raw_body = 3;
+}
