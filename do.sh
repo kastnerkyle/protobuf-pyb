@@ -67,6 +67,13 @@ protoc-decode() {
   fi
 }
 
+# TODO: pyb should do the equivalent of this.
+decode-descriptor() {
+  cat testdata/addressbook/addressbook.desc.encoded | protoc \
+      --decode google.protobuf.FileDescriptorSet \
+      data/descriptor.proto
+}
+
 # Make the tiny protobuf as in:
 # http://code.google.com/apis/protocolbuffers/docs/encoding.html
 
