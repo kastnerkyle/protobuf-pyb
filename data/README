@@ -1,0 +1,2 @@
+This dir contains the meta-descriptors, which must be packaged somehow with pyb
+(perhaps just convert it to a Python dict and import it.)

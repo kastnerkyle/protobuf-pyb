@@ -296,7 +296,7 @@ class DescriptorSet(object):
 # The descriptor of descriptors is GLOBAL for now
 # TODO: Package this data file more nicely
 
-_desc_set = DescriptorSet.FromJsonFile('descriptor.proto.json')
+_desc_set = DescriptorSet.FromJsonFile('data/descriptor.proto.json')
 FileDescriptorSet = _desc_set.Type('FileDescriptorSet')
 
 
