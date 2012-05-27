@@ -55,7 +55,54 @@ address_book_d = address_book_desc.GetDecoder("address_book.AddressBook")
 { person: ... } = address_book_e.dcode(<byte string>)
 
 
+from python_message.py:
 
+
+Encoding loop:
+
+
+  def _IsPresent(item):
+    "Given a (FieldDescriptor, value) tuple from _fields, return true if the
+    value should be included in the list returned by ListFields()."
+
+    if item[0].label == _FieldDescriptor.LABEL_REPEATED:
+      return bool(item[1])
+    elif item[0].cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
+      return item[1]._is_present_in_parent
+    else:
+      return True
+
+  def ListFields(self):
+    all_fields = [item for item in self._fields.iteritems() if _IsPresent(item)]
+    all_fields.sort(key = lambda item: item[0].number)
+    return all_fields
+
+  def InternalSerialize(self, write_bytes):
+    for field_descriptor, field_value in self.ListFields():
+      field_descriptor._encoder(write_bytes, field_value)
+
+Decoding loop:
+
+  local_ReadTag = decoder.ReadTag
+  local_SkipField = decoder.SkipField
+
+  # NOTE: These are the objects in decoder.py wrapped in _SimpleDecoder.
+  decoders_by_tag = cls._decoders_by_tag
+
+  def InternalParse(self, buffer, pos, end):
+    self._Modified()
+    field_dict = self._fields
+    while pos != end:
+      (tag_bytes, new_pos) = local_ReadTag(buffer, pos)
+      field_decoder = decoders_by_tag.get(tag_bytes)
+      if field_decoder is None:
+        new_pos = local_SkipField(buffer, new_pos, end, tag_bytes)
+        if new_pos == -1:
+          return pos
+        pos = new_pos
+      else:
+        pos = field_decoder(buffer, new_pos, end, self, field_dict)
+    return pos
 
 """
 
