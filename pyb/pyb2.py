@@ -71,6 +71,8 @@ except ImportError:
 
 import decoder
 import encoder
+import type_checkers
+print type_checkers
 
 
 class Error(Exception):
