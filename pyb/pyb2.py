@@ -20,6 +20,14 @@ MessageDecoder
 
   Then the decoding loop just walks through and calls these functions.
 
+Encoding:
+  It says the tags should be encoded in order.
+
+  So you should have a LIST of encoding functions?
+
+MessageEncoder:
+  see encoding.py
+
 """
 
 __author__ = 'Andy Chu'
