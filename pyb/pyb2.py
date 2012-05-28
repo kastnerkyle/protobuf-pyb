@@ -147,6 +147,10 @@ class DescriptorSet(object):
     self.type_index = {}
     self.root = IndexTypes(self.desc_dict, self.type_index)
 
+    # cache of encoders and decoders
+    self.decoder_root = {}
+    self.encoder_root = {}
+
   def GetDecoder(self, message_name):
     """
     message_name: string "package.Type"
@@ -154,10 +158,11 @@ class DescriptorSet(object):
     """
     #pprint(self.root)
     message_dict = Walk(self.root, message_name)
-    return message_dict
 
-    type_index = {}
-    IndexTypes(self.desc_dict, type_index)
+    # Now we need to get decoders.  They can be memoized in this class.
+    # self.decoder_root = {}
+
+    return message_dict
     return type_index
 
     for f in self.desc_dict['file']:

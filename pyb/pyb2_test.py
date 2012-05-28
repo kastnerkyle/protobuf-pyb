@@ -6,6 +6,7 @@ pyb2_test.py: Tests for pyb2.py
 __author__ = 'Andy Chu'
 
 
+from pprint import pprint
 import sys
 import unittest
 
@@ -21,17 +22,19 @@ class PybTest(unittest.TestCase):
 
   def testMakeTypes(self):
     d = pyb._LoadDescriptorProto()
-    type_index = {}
-    from pprint import pprint
-
-    #pyb.IndexTypes(d, type_index)
-    #import pprint
-    #pprint.pprint(type_index)
 
     desc_set = pyb.DescriptorSet(d)
     decoder = desc_set.GetDecoder('proto2.EnumOptions')
     pprint(decoder)
-    #pprint(desc_set.type_index)
+
+    decoder = desc_set.GetDecoder('proto2.FileOptions')
+    pprint(decoder)
+
+    decoder = desc_set.GetDecoder('proto2.DescriptorProto')
+    print 'DESCRIPTOR'
+    pprint(decoder)
+
+    pprint(desc_set.type_index.keys())
 
 
 
