@@ -224,6 +224,15 @@ def _AttachFieldHelpers(cls, field_descriptor):
 # END
 
 
+def PrintSubtree(subtree, indent=0):
+  if not isinstance(subtree, dict):
+    return
+  names = sorted(subtree)
+  for name in names:
+    print ' ' * indent + name
+    PrintSubtree(subtree[name], indent+2)
+
+
 def Walk(root, type_name):
   parts = type_name.split('.')
   value = root
@@ -235,7 +244,9 @@ def Walk(root, type_name):
     try:
       value = value[part]
     except KeyError:
-      raise Error("Expected one of %r, got %r" % (value.keys(), part))
+      PrintSubtree(root)
+      raise Error("Expected one of %r, got %r (path = %r)" %
+                  (value.keys(), part, parts))
   return value
 
 
