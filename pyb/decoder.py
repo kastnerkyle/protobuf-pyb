@@ -193,6 +193,7 @@ def _SimpleDecoder(wire_type, decode_value):
   """
 
   def SpecificDecoder(field_number, is_repeated, is_packed, key, new_default):
+
     if is_packed:
       local_DecodeVarint = _DecodeVarint
       def DecodePackedField(buffer, pos, end, message, field_dict):
@@ -211,6 +212,7 @@ def _SimpleDecoder(wire_type, decode_value):
           raise _DecodeError('Packed element was truncated.')
         return pos
       return DecodePackedField
+
     elif is_repeated:
       tag_bytes = encoder.TagBytes(field_number, wire_type)
       tag_len = len(tag_bytes)
@@ -230,6 +232,7 @@ def _SimpleDecoder(wire_type, decode_value):
               raise _DecodeError('Truncated message.')
             return new_pos
       return DecodeRepeatedField
+
     else:
       def DecodeField(buffer, pos, end, message, field_dict):
         (field_dict[key], pos) = decode_value(buffer, pos)

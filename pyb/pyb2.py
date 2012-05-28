@@ -244,18 +244,9 @@ def MakeTypes(descriptor_set, type_index):
   return root
 
 
-class AttrDict(dict):
-  def __getattr__(self, attr):
-    """Called when the attribute doesn't exist "statically". """
-    try:
-      return self.__getitem__(attr)
-    except KeyError:
-      raise AttributeError
-
-
 def _LoadDescriptorProto():
   f = open('data/descriptor.proto.json')
-  d = json.load(f, object_hook=AttrDict)
+  d = json.load(f)
   f.close()
   return d
 

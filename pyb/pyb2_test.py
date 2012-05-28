@@ -14,22 +14,18 @@ try:
 except ImportError:
   import simplejson as json
 
-import pyb2  # module under test
+import pyb2 as pyb # module under test
 
 
 class PybTest(unittest.TestCase):
 
-  def testAttrDict(self):
-    d = pyb2.AttrDict(a=1)
-    print d.a
+  def testMakeTypes(self):
+    d = pyb._LoadDescriptorProto()
+    type_index = {}
+    pyb.MakeTypes(d, type_index)
+    import pprint
+    pprint.pprint(type_index)
 
-  def testAttrDictJson(self):
-    d = json.loads('{"a":1}', object_hook=pyb2.AttrDict)
-    print d.a
-
-    d = json.loads('{"a":{"b":1}}', object_hook=pyb2.AttrDict)
-    print d.a
-    print d.a.b
 
 
 if __name__ == '__main__':
