@@ -22,21 +22,31 @@ ADDRESS_BOOK_PROTO = 'testdata/addressbook/addressbook.desc.json-from-protoc'
 
 class PybTest(unittest.TestCase):
 
-  def testMakeTypes(self):
+  def testDescriptorProto(self):
     d = pyb._LoadDescriptorProto()
 
     desc_set = pyb.DescriptorSet(d)
-    decoder = desc_set.GetDecoder('proto2.EnumOptions')
-    pprint(decoder)
+    decode = desc_set.GetDecoder('.proto2.EnumOptions')
+    pprint(decode)
 
-    decoder = desc_set.GetDecoder('proto2.FileOptions')
-    pprint(decoder)
+    decode = desc_set.GetDecoder('.proto2.FileOptions')
+    pprint(decode)
 
-    decoder = desc_set.GetDecoder('proto2.DescriptorProto')
+    decode = desc_set.GetDecoder('.proto2.DescriptorProto')
     print 'DESCRIPTOR'
-    #pprint(decoder)
+    #pprint(decode)
+
+    # decode a descriptor
+
+    decode = desc_set.GetDecoder('.proto2.FileDescriptorSet')
+    print 'DESCRIPTOR'
+    #pprint(decode)
 
     #pprint(desc_set.type_index.keys())
+
+    f = open('testdata/addressbook/addressbook.desc.encoded')
+    buf = f.read()
+    print decode(buf)
 
   def testAddressBook(self):
     # This isn't bootstrapped -- this is just a small test

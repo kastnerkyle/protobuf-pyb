@@ -255,6 +255,11 @@ class _FakeMessage(object):
   This is instantiated in GetDecoder -> _DefaultValueConstructor.
 
   We create decoders for the fields when constructing it.
+
+  We're missing a LEVEL here.
+  We need to capture field_dict.
+  But we DON'T want to make the decoders during decoding!
+
   """
 
   def __init__(self, type_name, type_index):
@@ -282,6 +287,7 @@ class _FakeMessage(object):
     return pos
 
   def __call__(self, buffer):
+    """Decode function."""
     return self._InternalParse(buffer, 0, len(buffer))
 
 
