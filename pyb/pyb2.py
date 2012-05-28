@@ -130,6 +130,54 @@ class Error(Exception):
 
 # REFERENCE CODE FROM PROTO2
 
+
+def _DefaultValueConstructorForField(field):
+  """Returns a function which returns a default value for a field.
+
+  Args:
+    field: FieldDescriptor object for this field.
+
+  The returned function has one argument:
+    message: Message instance containing this field, or a weakref proxy
+      of same.
+
+  That function in turn returns a default value for this field.  The default
+    value may refer back to |message| via a weak reference.
+  """
+
+  if field.label == _FieldDescriptor.LABEL_REPEATED:
+    if field.default_value != []:
+      raise ValueError('Repeated field default value not empty list: %s' % (
+          field.default_value))
+    if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
+      # We can't look at _concrete_class yet since it might not have
+      # been set.  (Depends on order in which we initialize the classes).
+      message_type = field.message_type
+      def MakeRepeatedMessageDefault(message):
+        return containers.RepeatedCompositeFieldContainer(
+            message._listener_for_children, field.message_type)
+      return MakeRepeatedMessageDefault
+    else:
+      type_checker = type_checkers.GetTypeChecker(field.cpp_type, field.type)
+      def MakeRepeatedScalarDefault(message):
+        return containers.RepeatedScalarFieldContainer(
+            message._listener_for_children, type_checker)
+      return MakeRepeatedScalarDefault
+
+  if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
+    # _concrete_class may not yet be initialized.
+    message_type = field.message_type
+    def MakeSubMessageDefault(message):
+      result = message_type._concrete_class()
+      result._SetListener(message._listener_for_children)
+      return result
+    return MakeSubMessageDefault
+
+  def MakeScalarDefault(message):
+    return field.default_value
+  return MakeScalarDefault
+
+
 def _IsMessageSetExtension(field):
   return (field.is_extension and
           field.containing_type.has_options and
@@ -210,32 +258,34 @@ class DescriptorSet(object):
     message_dict = Walk(self.root, message_name)
     decoders = {}  # tag bytes -> decoder function
     for f in message_dict['field']:
+      print f
       field_type = f['type']  # a string
       wire_type = lookup.FIELD_TYPE_TO_WIRE_TYPE[field_type]  # int
       tag_bytes = encoder.TagBytes(f['number'], wire_type)
       # get a function
       decoder = lookup.TYPE_TO_DECODER[field_type]
-      decoders[tag_bytes] = decoder
+      is_repeated = (f['label'] == 'LABEL_REPEATED')
+      is_packed = False
+
+      #is_packed = (field_descriptor.has_options and
+      #             field_descriptor.GetOptions().packed)
+
+      # field_descriptor, field_descriptor._default_constructor))
+      key = False
+      # TODO: this needs copying semantics
+      new_default = lambda unused_message: f.get('default_value')
+      decoders[tag_bytes] = decoder(f['number'], is_repeated, is_packed, key,
+                                    new_default)
+
+      print 'FIELD', f['name']
+      print 'field type', field_type
+      print 'wire type', wire_type
 
     # Now we need to get decoders.  They can be memoized in this class.
     # self.decoder_root = {}
 
     print decoders
     return Decoder(decoders)
-
-    return message_dict
-
-    for f in self.desc_dict['file']:
-      for m in f['message_type']:
-        name = m['name']
-        print name
-        if name == 'FieldDescriptorProto':
-          #print m['enum_type']
-          for t in m['enum_type']:
-            enum_name = t['name']
-            if enum_name == 'Type':
-              value = t['value']
-    return 3
 
   def GetEncoder(self, message_name):
     pass
@@ -257,6 +307,7 @@ class Decoder(object):
       #self._Modified()
       field_dict = {}
       while pos != end:
+        print 'POS:', pos
         (tag_bytes, new_pos) = local_ReadTag(buffer, pos)
         field_decoder = decoders_by_tag.get(tag_bytes)
         if field_decoder is None:
