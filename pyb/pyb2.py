@@ -351,14 +351,12 @@ class _FakeMessage(object):
       else:
         pos = field_decoder(buffer, new_pos, end, self, field_dict)
 
-    # TODO: How to surface this!!!  I guess we couS
-    print 'DICT', field_dict
     return pos
 
   def __call__(self, buffer):
     """Decode function."""
     pos = self._InternalParse(buffer, 0, len(buffer))
-    return self
+    return MakeDict(self)
 
 
 def MakeDict(node):
