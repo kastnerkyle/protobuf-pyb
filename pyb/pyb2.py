@@ -231,13 +231,15 @@ def Walk(root, message_name):
     try:
       value = value[part]
     except KeyError:
-      raise Error("Expected one of: %r" % value.keys)
+      raise Error("Expected one of: %r" % value.keys())
   return value
 
 
 class _FakeMessage(object):
 
   def _InternalParse(self, buffer, pos, end):
+    # TODO: We should have a bunch of decoders methods
+    # Call Parse with decoders?
     pass
 
 
@@ -317,6 +319,8 @@ class DescriptorSet(object):
 class Decoder(object):
 
   def __init__(self, decoders):
+    # TODO: decoders should be attached to a FakeMessage?  Then GetDecoder #
+    # should construct a _FakeMessage, and return the ParseFromString method
     self.decoders = decoders
 
   def __call__(self, buffer):
