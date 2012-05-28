@@ -501,11 +501,16 @@ class _FakeEncodeMessage(object):
     self.sizers_index = sizers_index
     self.type_name = type_name
 
+    self.encoders = self.encoders_index[type_name]
+
+    self.obj = None
+
   def __call__(self, obj):
     """
     Args:
       obj: A dictinoary
     """
+    self.obj = obj  # this weird structured is forced by encoder.py/decoder.py
     buf = []
     write_bytes = buf.append
     self._InternalSerialize(write_bytes)
@@ -529,9 +534,12 @@ class _FakeEncodeMessage(object):
     return all_fields
 
   def _InternalSerialize(self, write_bytes):
-    for field_descriptor, field_value in self.ListFields():
-      field_descriptor._encoder(write_bytes, field_value)
+    #fields = self.obj.keys()
+    # TODO: sort the fields
 
+    for field_name, field_value in self.obj.iteritems():
+      encoder = self.encoders[field_name]
+      encoder(write_bytes, field_value)
 
 
 def IndexEnums(enums, root):
