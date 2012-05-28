@@ -224,14 +224,18 @@ def _AttachFieldHelpers(cls, field_descriptor):
 # END
 
 
-def Walk(root, message_name):
-  parts = message_name.split('.')
+def Walk(root, type_name):
+  parts = type_name.split('.')
   value = root
   for part in parts:
+    if not part:
+      # the references look like .tutorial.AddressBook for some reason, so just
+      # ignore leading '' component.
+      continue
     try:
       value = value[part]
     except KeyError:
-      raise Error("Expected one of: %r" % value.keys())
+      raise Error("Expected one of %r, got %r" % (value.keys(), part))
   return value
 
 
@@ -242,9 +246,8 @@ class _FakeMessage(object):
   We create decoders for the fields when constructing it.
   """
 
-  def __init__(self, field_dict, root):
-    self.field_dict = field_dict
-    self.root = root
+  def __init__(self, type_name, root):
+    self.decoders = MakeDecoders(root, type_name)
 
   def _InternalParse(self, buffer, pos, end):
     # TODO: We should have a bunch of decoders methods
@@ -252,7 +255,21 @@ class _FakeMessage(object):
     pass
 
 
-class _FakeList(list):
+class _FakeCompositeList(list):
+  def __init__(self, type_name, root):
+    self.type_name = type_name
+    self.root = root
+
+  def add(self):
+    """Return a new value of the given type.  Add it to the end of the list"""
+
+    # ARGH, this might not be a message.
+    x = _FakeMessage(self.type_name, self.root)
+    self.append(x)
+    return x
+
+
+class _FakeScalarList(list):
   def __init__(self, field_dict, root):
     self.field_dict = field_dict
     self.root = root
@@ -266,11 +283,26 @@ class _FakeList(list):
     return x
 
 
-def _DefaultValueConstructor(field, root):
-  if field['label'] == 'LABEL_REPEATED':
-    return lambda m: _FakeList(field, root)
-  else:
-    return lambda m: field['default_value']
+def _DefaultValueConstructor(field, root, is_repeated):
+  field_type = field['type']
+  print "DEFAULT VALUE for", type
+  type_name = field.get('type_name')
+  print "type name", type_name
+  repeated = (field['label'] == 'LABEL_REPEATED')
+
+  if field_type == 'TYPE_MESSAGE':
+    type_name = field.get('type_name')
+    assert type_name
+    if is_repeated:
+      return lambda m: _FakeCompositeList(type_name, root)
+    else:
+      return lambda m: _FakeMessage(type_name, root)
+
+  else:  # scalar
+    if is_repeated:
+      return lambda m: _FakeScalarList(field, root)
+    else:
+      return lambda m: field['default_value']
 
 
 class DescriptorSet(object):
@@ -287,7 +319,7 @@ class DescriptorSet(object):
     self.decoder_root = {}
     self.encoder_root = {}
 
-  def GetDecoder(self, message_name):
+  def GetDecoder(self, type_name):
     """
     Return a callable that can decode a message.
 
@@ -297,22 +329,22 @@ class DescriptorSet(object):
     decoder.py unfortunately uses class polymorphism for dispatch.  It calls
     value._InternalParse a lot.
 
-    message_name: string "package.Type"
+    type_name: string "package.Type"
                   Could also be "foo.bar.baz.Type"
 
     """
-    decoders = MakeDecoders(self.root, message_name)
+    decoders = MakeDecoders(self.root, type_name)
     return Decoder(decoders)
 
-  def GetEncoder(self, message_name):
+  def GetEncoder(self, type_name):
     pass
 
 
-def MakeDecoders(root, message_name):
+def MakeDecoders(root, type_name):
   """
   """
   #pprint(self.root)
-  message_dict = Walk(root, message_name)
+  message_dict = Walk(root, type_name)
   # For other types
 
   decoders = {}  # tag bytes -> decoder function
@@ -335,7 +367,7 @@ def MakeDecoders(root, message_name):
 
     # key for field_dict
     key = f['name']
-    new_default = _DefaultValueConstructor(f, root)
+    new_default = _DefaultValueConstructor(f, root, is_repeated)
 
     # Now create the decoder by calling the constructor
     decoders[tag_bytes] = decoder(f['number'], is_repeated, is_packed, key,
