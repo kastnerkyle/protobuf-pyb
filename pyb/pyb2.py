@@ -375,7 +375,7 @@ class _FakeMessage(object):
 
     return pos
 
-  def __call__(self, buffer):
+  def decode(self, buffer):
     """Decode function."""
     pos = self._InternalParse(buffer, 0, len(buffer))
     return MakeDict(self)
@@ -465,7 +465,9 @@ class DescriptorSet(object):
     # object is not immutable and can be used from multiple threads.
     decoders = _MakeDecoders(self.type_index, self.decoders_index, type_name)
     self.decoders_index[type_name] = decoders
-    return _FakeMessage(self.decoders_index, type_name)
+    m = _FakeMessage(self.decoders_index, type_name)
+    # Return decoding function
+    return m.decode
 
   def GetEncoder(self, type_name):
     pass
