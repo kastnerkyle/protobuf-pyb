@@ -295,7 +295,9 @@ class DescriptorSet(object):
       #             field_descriptor.GetOptions().packed)
 
       # field_descriptor, field_descriptor._default_constructor))
-      key = False
+
+      # key for field_dict
+      key = f['name']
       # TODO: this needs copying semantics
       new_default = _DefaultValueConstructor(f)
 
