@@ -239,6 +239,46 @@ def Walk(root, type_name):
   return value
 
 
+class Decoder(object):
+
+  def __init__(self, decoders):
+    # TODO: decoders should be attached to a FakeMessage?  Then GetDecoder #
+    # should construct a _FakeMessage, and return the ParseFromString method
+
+    # I think python_message.py needs dynamic bootstrapping.  Because
+    # InitMessage takes a descriptor, which I think is a proto object itself.
+    # Crap.
+    # And then encoding is an issue too.  Probably need your own Message type.
+
+    self.decoders = decoders
+
+  def __call__(self, buffer):
+    local_ReadTag = decoder.ReadTag
+    local_SkipField = decoder.SkipField
+
+    # NOTE: These are the objects in decoder.py wrapped in _SimpleDecoder, etc.
+    decoders_by_tag = self.decoders
+
+    def InternalParse(buffer, pos, end):
+      #self._Modified()
+      field_dict = {}
+      while pos != end:
+        print 'POS:', pos
+        (tag_bytes, new_pos) = local_ReadTag(buffer, pos)
+        field_decoder = decoders_by_tag.get(tag_bytes)
+        if field_decoder is None:
+          new_pos = local_SkipField(buffer, new_pos, end, tag_bytes)
+          if new_pos == -1:
+            return pos
+          pos = new_pos
+        else:
+          pos = field_decoder(buffer, new_pos, end, self, field_dict)
+      print field_dict
+      return pos
+
+    return InternalParse(buffer, 0, len(buffer))
+
+
 class _FakeMessage(object):
   """
   This is instantiated in GetDecoder -> _DefaultValueConstructor.
@@ -250,12 +290,32 @@ class _FakeMessage(object):
     self.decoders = MakeDecoders(root, type_name)
 
   def _InternalParse(self, buffer, pos, end):
-    # TODO: We should have a bunch of decoders methods
-    # Call Parse with decoders?
-    pass
+    # These statements used to be one level up
+    local_ReadTag = decoder.ReadTag
+    local_SkipField = decoder.SkipField
+    decoders_by_tag = self.decoders
+
+    field_dict = {}
+    while pos != end:
+      print 'POS:', pos
+      (tag_bytes, new_pos) = local_ReadTag(buffer, pos)
+      field_decoder = decoders_by_tag.get(tag_bytes)
+      if field_decoder is None:
+        new_pos = local_SkipField(buffer, new_pos, end, tag_bytes)
+        if new_pos == -1:
+          return pos
+        pos = new_pos
+      else:
+        pos = field_decoder(buffer, new_pos, end, self, field_dict)
+    print field_dict
+    return pos
+
+  def __call__(self, buffer):
+    return self._InternalParse(buffer, 0, len(buffer))
 
 
 class _FakeCompositeList(list):
+
   def __init__(self, type_name, root):
     self.type_name = type_name
     self.root = root
@@ -270,15 +330,14 @@ class _FakeCompositeList(list):
 
 
 class _FakeScalarList(list):
-  def __init__(self, field_dict, root):
-    self.field_dict = field_dict
-    self.root = root
+
+  def __init__(self, new_default):
+    self.new_default = new_default
 
   def add(self):
     """Return a new value of the given type.  Add it to the end of the list"""
 
-    # ARGH, this might not be a message.
-    x = _FakeMessage(self.field_dict, self.root)
+    x = self.new_default()
     self.append(x)
     return x
 
@@ -333,8 +392,8 @@ class DescriptorSet(object):
                   Could also be "foo.bar.baz.Type"
 
     """
-    decoders = MakeDecoders(self.root, type_name)
-    return Decoder(decoders)
+    #decoders = MakeDecoders(self.root, type_name)
+    return _FakeMessage(type_name, self.root)
 
   def GetEncoder(self, type_name):
     pass
@@ -383,89 +442,6 @@ def MakeDecoders(root, type_name):
   return decoders
 
 
-class Decoder(object):
-
-  def __init__(self, decoders):
-    # TODO: decoders should be attached to a FakeMessage?  Then GetDecoder #
-    # should construct a _FakeMessage, and return the ParseFromString method
-
-    # I think python_message.py needs dynamic bootstrapping.  Because
-    # InitMessage takes a descriptor, which I think is a proto object itself.
-    # Crap.
-    # And then encoding is an issue too.  Probably need your own Message type.
-
-    self.decoders = decoders
-
-  def __call__(self, buffer):
-    local_ReadTag = decoder.ReadTag
-    local_SkipField = decoder.SkipField
-
-    # NOTE: These are the objects in decoder.py wrapped in _SimpleDecoder, etc.
-    decoders_by_tag = self.decoders
-
-    def InternalParse(buffer, pos, end):
-      #self._Modified()
-      field_dict = {}
-      while pos != end:
-        print 'POS:', pos
-        (tag_bytes, new_pos) = local_ReadTag(buffer, pos)
-        field_decoder = decoders_by_tag.get(tag_bytes)
-        if field_decoder is None:
-          new_pos = local_SkipField(buffer, new_pos, end, tag_bytes)
-          if new_pos == -1:
-            return pos
-          pos = new_pos
-        else:
-          pos = field_decoder(buffer, new_pos, end, self, field_dict)
-      print field_dict
-      return pos
-
-    return InternalParse(buffer, 0, len(buffer))
-
-
-
-class Message(object):
-  """A record-like object with an associated schema.
-
-  MakeMessageType generates subclasses of this class at runtime.
-  """
-
-  _field_names = set()  # A set of names, for quick lookup
-  _fields = {}  # Details about the fields, including types
-  _fields_by_tag = {}  # Index of fields by tag number
-  _repeated = set()
-
-
-def MakeMessageType(type_name, fields):
-  """Given the message type information, return a new subclass of Message."""
-
-  class_attrs = {}
-
-  repeated = set()  # TODO: Benchmark this
-  fields_by_tag = {}
-
-  for field in fields:
-    fields_by_tag[field['number']] = field
-
-    # Repeated fields are empty by default.
-    if field['label'] == 'LABEL_REPEATED':
-      repeated.add(field['name'])
-
-    # Fill in defaults as class attributes.  This takes advantage of Python's
-    # normal attribute lookup order.
-    if 'default_value' in field:
-      class_attrs[field['name']] = field['default_value']
-
-  class_attrs.update({
-      '_field_names': set(f['name'] for f in fields),
-      '_fields': fields,
-      '_fields_by_tag': fields_by_tag,
-      '_repeated': repeated,  # repeated fields
-      })
-
-  return type(str(type_name), (Message,), class_attrs)
-
-
 def IndexEnums(enums, root):
   """Given the enum type information, attach it to the Message class."""
   # Like proto2, we ignore the enum type name.  All enums values live in the
@@ -486,7 +462,7 @@ def IndexMessages(messages, package, name_list, root, type_index):
     package: The proto package.  This is generally irrelevant to the user of the
         API, but still used internally.
     name_list: Stack of names
-    root: The type that encloses these type, or the root _ProtoPackage
+    root: Dictionary root
     type_index: The message types are registered in this "global" index of types
   """
   for message_data in messages:
@@ -508,10 +484,6 @@ def IndexMessages(messages, package, name_list, root, type_index):
     IndexEnums(message_data.get('enum_type', []), root)
 
 
-class _ProtoPackage(object):
-  """Used to create protobuf namespaces."""
-
-
 def IndexTypes(descriptor_set, type_index):
   """Make a dict of foo.bar.baz.Type -> DescriptorProto
 
@@ -521,7 +493,7 @@ def IndexTypes(descriptor_set, type_index):
     type_index: A type index to populate
 
   Returns:
-    A _ProtoPackage instance
+    A dictionary
   """
   # Flatten the file structure, and look up types by their fully qualified
   # names
