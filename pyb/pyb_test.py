@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-pyb2_test.py: Tests for pyb2.py
+pyb_test.py: Tests for pyb.py
 """
 
 __author__ = 'Andy Chu'
@@ -15,10 +15,12 @@ try:
 except ImportError:
   import simplejson as json
 
-import pyb2 as pyb # module under test
+import pyb  # module under test
+
 
 TEST_PROTO = 'testdata/trivial/test.desc.json-from-pyb'
 ADDRESS_BOOK_PROTO = 'testdata/addressbook/addressbook.desc.json-from-protoc'
+
 
 class PybTest(unittest.TestCase):
 
