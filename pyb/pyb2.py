@@ -453,7 +453,10 @@ def IndexMessages(messages, package, name_list, root, type_index):
     root[type_name] = message_data
 
     # Populate the type index owned by an instance of DescriptorSet
-    key = '.%s.%s' % (package, full_name)
+    if package:
+      key = '.%s.%s' % (package, full_name)
+    else:
+      key = '.%s' % full_name
     type_index[key] = message_data
 
     subtypes = message_data.get('nested_type', [])

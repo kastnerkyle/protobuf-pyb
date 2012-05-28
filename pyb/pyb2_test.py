@@ -59,7 +59,8 @@ class PybTest(unittest.TestCase):
     f.close()
     print d
     desc_set = pyb.DescriptorSet(d)
-    decode = desc_set.GetDecoder('Test1')
+    # TODO: Fix this -- if there's no package
+    decode = desc_set.GetDecoder('.Test1')
 
     f = open('test.bin')
     buf = f.read()
