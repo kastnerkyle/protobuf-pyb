@@ -342,6 +342,9 @@ def _DefaultValueConstructor(field, type_index, is_repeated):
 
 
 class DescriptorSet(object):
+  """
+  Represents proto message definitions, where the definitions can span.
+  """
 
   def __init__(self, desc_dict):
     """

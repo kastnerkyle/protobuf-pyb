@@ -46,7 +46,13 @@ class PybTest(unittest.TestCase):
 
     f = open('testdata/addressbook/addressbook.desc.encoded')
     buf = f.read()
-    print decode(buf)
+
+    d = decode(buf)
+
+    # TODO: bootstrapping.    We got a dictionary that represents the
+    # address book descriptor.
+    # Now instantiate another DescriptorSet, and use that to decode address book
+    # protocol buffers.
 
   def testAddressBook(self):
     # This isn't bootstrapped -- this is just a small test
