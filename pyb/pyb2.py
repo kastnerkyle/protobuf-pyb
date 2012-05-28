@@ -254,7 +254,7 @@ def _DefaultValueConstructor(field, type_index, is_repeated):
 
   else:  # scalar
     if is_repeated:
-      return lambda m: _FakeScalarList(field, type_index)
+      return lambda m: _FakeScalarList(lambda: field['default_value'])
     else:
       return lambda m: field['default_value']
 
@@ -390,8 +390,9 @@ class DescriptorSet(object):
     self.root = IndexTypes(self.desc_dict, self.type_index)
 
     # cache of encoders and decoders
-    self.decoder_root = {}
-    self.encoder_root = {}
+    # same key as type index
+    self.decoders = {}
+    self.encoders = {}
 
   def GetDecoder(self, type_name):
     """
