@@ -80,30 +80,6 @@ Encoding loop:
     for field_descriptor, field_value in self.ListFields():
       field_descriptor._encoder(write_bytes, field_value)
 
-
-Decoding loop:
-
-  local_ReadTag = decoder.ReadTag
-  local_SkipField = decoder.SkipField
-
-  # NOTE: These are the objects in decoder.py wrapped in _SimpleDecoder.
-  decoders_by_tag = cls._decoders_by_tag
-
-  def InternalParse(self, buffer, pos, end):
-    self._Modified()
-    field_dict = self._fields
-    while pos != end:
-      (tag_bytes, new_pos) = local_ReadTag(buffer, pos)
-      field_decoder = decoders_by_tag.get(tag_bytes)
-      if field_decoder is None:
-        new_pos = local_SkipField(buffer, new_pos, end, tag_bytes)
-        if new_pos == -1:
-          return pos
-        pos = new_pos
-      else:
-        pos = field_decoder(buffer, new_pos, end, self, field_dict)
-    return pos
-
 """
 
 __author__ = 'Andy Chu'
@@ -192,6 +168,7 @@ def _AttachFieldHelpers(cls, field_descriptor):
   is_packed = (field_descriptor.has_options and
                field_descriptor.GetOptions().packed)
 
+  # TODO: Need to handle message set encoding in pyb
   if _IsMessageSetExtension(field_descriptor):
     field_encoder = encoder.MessageSetItemEncoder(field_descriptor.number)
     sizer = encoder.MessageSetItemSizer(field_descriptor.number)
@@ -233,6 +210,67 @@ def PrintSubtree(subtree, indent=0):
     PrintSubtree(subtree[name], indent+2)
 
 
+#
+# ENCODING
+#
+
+
+def _MakeEncoders(type_index, encoders_index, type_name):
+  field_encoder = type_checkers.TYPE_TO_ENCODER[field_descriptor.type](
+      field_descriptor.number, is_repeated, is_packed)
+  sizer = type_checkers.TYPE_TO_SIZER[field_descriptor.type](
+      field_descriptor.number, is_repeated, is_packed)
+
+  field_descriptor._encoder = field_encoder
+  field_descriptor._sizer = sizer
+  field_descriptor._default_constructor = _DefaultValueConstructorForField(
+      field_descriptor)
+
+  message_dict = type_index[type_name]
+  encoders = {}  # field name -> encoder function
+  sizers = {}  # field name -> sizer function
+
+  fields = message_dict.get('field')
+  if not fields:
+    print message_dict
+    raise Error('No fields for %s' % type_name)
+
+  for f in fields:
+    field_type = f['type']  # a string
+    wire_type = lookup.FIELD_TYPE_TO_WIRE_TYPE[field_type]  # int
+
+
+    tag_bytes = encoder.TagBytes(f['number'], wire_type)
+
+    # get a decoder constructor, e.g. MessageDecoder
+    decoder = lookup.TYPE_TO_DECODER[field_type]
+    is_repeated = (f['label'] == 'LABEL_REPEATED')
+    is_packed = False
+
+    #is_packed = (field_descriptor.has_options and
+    #             field_descriptor.GetOptions().packed)
+
+    # field_descriptor, field_descriptor._default_constructor))
+
+    # key for field_dict
+    key = f['name']
+    new_default = _DefaultValueConstructor(f, type_index, decoders_index,
+                                           is_repeated)
+
+    # Now create the decoder by calling the constructor
+    decoders[tag_bytes] = decoder(f['number'], is_repeated, is_packed, key,
+                                  new_default)
+
+    print '---------'
+    print 'FIELD name', f['name']
+    print 'field type', field_type
+    print 'wire type', wire_type
+
+
+#
+# DECODING
+#
+
 def _DefaultValueConstructor(field, type_index, decoders_index, is_repeated):
   """
   Args:
@@ -264,20 +302,14 @@ def _DefaultValueConstructor(field, type_index, decoders_index, is_repeated):
   if field_type == 'TYPE_MESSAGE':
     type_name = field.get('type_name')
     assert type_name
-    # TODO: document thread safety -- mutating decoders_index here
+
+    # Populate the decoders_index so that the constructor returned below can
+    # access decoders.
     if type_name not in decoders_index:
       # mark visited BEFORE recursive call, preventing infinite recursion
       decoders_index[type_name] = True
       decoders = _MakeDecoders(type_index, decoders_index, type_name)
       decoders_index[type_name] = decoders
-
-    # TODO: How to end recursive types?  DescriptorProto contains
-    # DescriptorProto (nested_type).
-
-    #print '----'
-    #pprint(decoders_index)
-    #print '----'
-    #sys.stdin.readline()
 
     if is_repeated:
       return lambda m: _FakeCompositeList(decoders_index, type_name)
@@ -305,8 +337,6 @@ def _MakeDecoders(type_index, decoders_index, type_name):
     raise Error('No fields for %s' % type_name)
 
   for f in fields:
-    print f
-
     field_type = f['type']  # a string
     wire_type = lookup.FIELD_TYPE_TO_WIRE_TYPE[field_type]  # int
     tag_bytes = encoder.TagBytes(f['number'], wire_type)
@@ -378,22 +408,22 @@ class _FakeMessage(object):
   def decode(self, buffer):
     """Decode function."""
     pos = self._InternalParse(buffer, 0, len(buffer))
-    return MakeDict(self)
+    return _MakeDict(self)
 
 
-def MakeDict(node):
+def _MakeDict(node):
   """
   message
   """
   if isinstance(node, _FakeMessage):
     result = {}
     for k, v in node.field_dict.iteritems():
-      result[k] = MakeDict(v)
+      result[k] = _MakeDict(v)
     return result
   elif isinstance(node, list):
     result = []
     for item in node:
-      result.append(MakeDict(item))
+      result.append(_MakeDict(item))
     return result
   else:
     return node
@@ -470,7 +500,9 @@ class DescriptorSet(object):
     return m.decode
 
   def GetEncoder(self, type_name):
-    pass
+    encoders = _MakeEncoders(self.type_index, self.encoders_index, type_name)
+    self.encoders_index[type_name] = encoders
+    m = _FakeMessage(self.decoders_index, type_name)
 
 
 def IndexEnums(enums, root):
