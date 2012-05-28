@@ -233,7 +233,10 @@ def PrintSubtree(subtree, indent=0):
     PrintSubtree(subtree[name], indent+2)
 
 
-def _DefaultValueConstructor(field, type_index, is_repeated):
+def _DefaultValueConstructor(field, type_index, decoders_index, is_repeated):
+  """
+  Mututally recursive with _MakeDecoders.
+  """
   field_type = field['type']
   print "DEFAULT VALUE for", type
   type_name = field.get('type_name')
@@ -242,15 +245,23 @@ def _DefaultValueConstructor(field, type_index, is_repeated):
 
   if field_type == 'TYPE_MESSAGE':
     type_name = field.get('type_name')
+    # TODO: document thread safety -- mutating decoders_index here
+    if type_name in decoders_index:
+      decoders = decoders_index[type_name]
+    else:
+      decoders = _MakeDecoders(type_index, decoders_index, type_name)
+      decoders_index[type_name] = decoders
+
+    print '----'
+    pprint(decoders_index)
+    print '----'
+    sys.stdin.readline()
+
     assert type_name
     if is_repeated:
-      return lambda m: _FakeCompositeList(type_name, type_index)
+      return lambda m: _FakeCompositeList(decoders)
     else:
-      # TODO: Error here:
-      # We are returning a new_default constructor to the decoder.  But
-      # _FakeMessage instantiates decoders.  We need to do that ALL ahead of
-      # time, in _MakeDecoders.
-      return lambda m: _FakeMessage(type_name, type_index)
+      return lambda m: _FakeMessage(decoders)
 
   else:  # scalar
     if is_repeated:
@@ -259,7 +270,7 @@ def _DefaultValueConstructor(field, type_index, is_repeated):
       return lambda m: field['default_value']
 
 
-def _MakeDecoders(type_index, type_name):
+def _MakeDecoders(type_index, decoders_index, type_name):
   """
   """
   #pprint(self.root)
@@ -291,7 +302,8 @@ def _MakeDecoders(type_index, type_name):
 
     # key for field_dict
     key = f['name']
-    new_default = _DefaultValueConstructor(f, type_index, is_repeated)
+    new_default = _DefaultValueConstructor(f, type_index, decoders_index,
+                                           is_repeated)
 
     # Now create the decoder by calling the constructor
     decoders[tag_bytes] = decoder(f['number'], is_repeated, is_packed, key,
@@ -319,8 +331,8 @@ class _FakeMessage(object):
 
   """
 
-  def __init__(self, type_name, type_index):
-    self.decoders = _MakeDecoders(type_index, type_name)
+  def __init__(self, decoders):
+    self.decoders = decoders
 
   def _InternalParse(self, buffer, pos, end):
     # These statements used to be one level up
@@ -350,15 +362,14 @@ class _FakeMessage(object):
 
 class _FakeCompositeList(list):
 
-  def __init__(self, type_name, type_index):
-    self.type_name = type_name
-    self.type_index = type_index
+  def __init__(self, decoders):
+    self.decoders = decoders
 
   def add(self):
     """Return a new value of the given type.  Add it to the end of the list"""
 
     # ARGH, this might not be a message.
-    x = _FakeMessage(self.type_name, self.type_index)
+    x = _FakeMessage(self.decoders)
     self.append(x)
     return x
 
@@ -390,9 +401,9 @@ class DescriptorSet(object):
     self.root = IndexTypes(self.desc_dict, self.type_index)
 
     # cache of encoders and decoders
-    # same key as type index
-    self.decoders = {}
-    self.encoders = {}
+    # { ".package.Type" : { "tag bytes" -> <decode function> } ... }
+    self.decoders_index = {}
+    self.encoders_index = {}
 
   def GetDecoder(self, type_name):
     """
@@ -408,7 +419,8 @@ class DescriptorSet(object):
                   Could also be "foo.bar.baz.Type"
 
     """
-    return _FakeMessage(type_name, self.type_index)
+    decoders = _MakeDecoders(self.type_index, self.decoders_index, type_name)
+    return _FakeMessage(decoders)
 
   def GetEncoder(self, type_name):
     pass
