@@ -235,36 +235,54 @@ def PrintSubtree(subtree, indent=0):
 
 def _DefaultValueConstructor(field, type_index, decoders_index, is_repeated):
   """
-  Mututally recursive with _MakeDecoders.
+  Args:
+    field: field descriptor dictionary
+
+  Mutually recursive with _MakeDecoders.
+
+  Types can contain themselves, e.g. DescriptorProto contains DescriptorProto
+  nested_types.
+  
+  So we have to make sure that *decoders* can contain references to themselves.
+  A decoder is a dict
+
+    {  tag bytes -> decoding function }
+
+  In the case of a message type, 
+
+    {  tag bytes -> decoder returned by MessageDecoder }
+
+  The decoder has a reference to new_default, which creates _FakeMessage which
+  holds refernces to the proper decoders.
   """
   field_type = field['type']
-  print "DEFAULT VALUE for", type
+  print "DEFAULT VALUE for", field_type
   type_name = field.get('type_name')
   print "type name", type_name
   repeated = (field['label'] == 'LABEL_REPEATED')
 
   if field_type == 'TYPE_MESSAGE':
     type_name = field.get('type_name')
+    assert type_name
     # TODO: document thread safety -- mutating decoders_index here
-    if type_name in decoders_index:
-      decoders = decoders_index[type_name]
-    else:
+    if type_name not in decoders_index:
+      # mark visited BEFORE recursive call, preventing infinite recursion
+      decoders_index[type_name] = True
       decoders = _MakeDecoders(type_index, decoders_index, type_name)
       decoders_index[type_name] = decoders
 
     # TODO: How to end recursive types?  DescriptorProto contains
     # DescriptorProto (nested_type).
 
-    print '----'
-    pprint(decoders_index)
-    print '----'
+    #print '----'
+    #pprint(decoders_index)
+    #print '----'
     #sys.stdin.readline()
 
-    assert type_name
     if is_repeated:
-      return lambda m: _FakeCompositeList(decoders)
+      return lambda m: _FakeCompositeList(decoders_index, type_name)
     else:
-      return lambda m: _FakeMessage(decoders)
+      return lambda m: _FakeMessage(decoders_index, type_name)
 
   else:  # scalar
     if is_repeated:
@@ -312,7 +330,8 @@ def _MakeDecoders(type_index, decoders_index, type_name):
     decoders[tag_bytes] = decoder(f['number'], is_repeated, is_packed, key,
                                   new_default)
 
-    print 'FIELD', f['name']
+    print '---------'
+    print 'FIELD name', f['name']
     print 'field type', field_type
     print 'wire type', wire_type
 
@@ -328,8 +347,11 @@ class _FakeMessage(object):
   _DefaultValueConstructor.
   """
 
-  def __init__(self, decoders):
-    self.decoders = decoders
+  def __init__(self, decoders_index, type_name):
+    # Do lookup on construction
+    self.decoders = decoders_index.get(type_name)
+    assert self.decoders is not None, "Expected decoders for %r" % type_name
+    assert self.decoders is not True, "Got placeholder True for %r" % type_name
     self.field_dict = {}
 
   def _InternalParse(self, buffer, pos, end):
@@ -379,14 +401,15 @@ def MakeDict(node):
 
 class _FakeCompositeList(list):
 
-  def __init__(self, decoders):
-    self.decoders = decoders
+  def __init__(self, decoders_index, type_name):
+    self.decoders_index = decoders_index
+    self.type_name = type_name
 
   def add(self):
     """Return a new value of the given type.  Add it to the end of the list"""
 
     # ARGH, this might not be a message.
-    x = _FakeMessage(self.decoders)
+    x = _FakeMessage(self.decoders_index, self.type_name)
     self.append(x)
     return x
 
@@ -436,8 +459,13 @@ class DescriptorSet(object):
                   Could also be "foo.bar.baz.Type"
 
     """
+    # Populate decoders_index for just the message types needed (transitively)
+    # for type_name.
+    # TODO: Create a GetAllDecoders() to populate the entire index, so that the
+    # object is not immutable and can be used from multiple threads.
     decoders = _MakeDecoders(self.type_index, self.decoders_index, type_name)
-    return _FakeMessage(decoders)
+    self.decoders_index[type_name] = decoders
+    return _FakeMessage(self.decoders_index, type_name)
 
   def GetEncoder(self, type_name):
     pass

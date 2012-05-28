@@ -53,8 +53,10 @@ class PybTest(unittest.TestCase):
 
     f = open('testdata/addressbook/addressbook.desc.encoded')
     buf = f.read()
+    f.close()
 
-    d = decode(buf)
+    result = decode(buf)
+    pprint(result)
 
     # TODO: bootstrapping.    We got a dictionary that represents the
     # address book descriptor.
