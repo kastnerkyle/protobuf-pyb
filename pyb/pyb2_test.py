@@ -73,7 +73,11 @@ class PybTest(unittest.TestCase):
 
     f = open('testdata/addressbook/addressbook.encoded')
     buf = f.read()
-    print decode(buf)
+    result = decode(buf)
+    print 'RESULT', result
+    print 'RESULT'
+    r = pyb.MakeDict(result)
+    pprint(r)
 
   def testTrivialDecode(self):
     # This isn't bootstrapped -- this is just a small test

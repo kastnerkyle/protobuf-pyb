@@ -252,10 +252,13 @@ def _DefaultValueConstructor(field, type_index, decoders_index, is_repeated):
       decoders = _MakeDecoders(type_index, decoders_index, type_name)
       decoders_index[type_name] = decoders
 
+    # TODO: How to end recursive types?  DescriptorProto contains
+    # DescriptorProto (nested_type).
+
     print '----'
     pprint(decoders_index)
     print '----'
-    sys.stdin.readline()
+    #sys.stdin.readline()
 
     assert type_name
     if is_repeated:
@@ -321,18 +324,13 @@ def _MakeDecoders(type_index, decoders_index, type_name):
 
 class _FakeMessage(object):
   """
-  This is instantiated in GetDecoder -> _DefaultValueConstructor.
-
-  We create decoders for the fields when constructing it.
-
-  We're missing a LEVEL here.
-  We need to capture field_dict.
-  But we DON'T want to make the decoders during decoding!
-
+  This is instantiated in GetDecoder -> function returned by
+  _DefaultValueConstructor.
   """
 
   def __init__(self, decoders):
     self.decoders = decoders
+    self.field_dict = {}
 
   def _InternalParse(self, buffer, pos, end):
     # These statements used to be one level up
@@ -340,7 +338,7 @@ class _FakeMessage(object):
     local_SkipField = decoder.SkipField
     decoders_by_tag = self.decoders
 
-    field_dict = {}
+    field_dict = self.field_dict
     while pos != end:
       #print 'POS:', pos
       (tag_bytes, new_pos) = local_ReadTag(buffer, pos)
@@ -352,12 +350,33 @@ class _FakeMessage(object):
         pos = new_pos
       else:
         pos = field_decoder(buffer, new_pos, end, self, field_dict)
+
+    # TODO: How to surface this!!!  I guess we couS
     print 'DICT', field_dict
     return pos
 
   def __call__(self, buffer):
     """Decode function."""
-    return self._InternalParse(buffer, 0, len(buffer))
+    pos = self._InternalParse(buffer, 0, len(buffer))
+    return self
+
+
+def MakeDict(node):
+  """
+  message
+  """
+  if isinstance(node, _FakeMessage):
+    result = {}
+    for k, v in node.field_dict.iteritems():
+      result[k] = MakeDict(v)
+    return result
+  elif isinstance(node, list):
+    result = []
+    for item in node:
+      result.append(MakeDict(item))
+    return result
+  else:
+    return node
 
 
 class _FakeCompositeList(list):
