@@ -29,6 +29,12 @@ class PybTest(unittest.TestCase):
     print d
     self.trivial = pyb.DescriptorSet(d)
 
+    # This isn't bootstrapped -- this is just a small test
+    f = open(ADDRESS_BOOK_PROTO)
+    d = json.load(f)
+    f.close()
+    self.address_book = pyb.DescriptorSet(d)
+
   def testDescriptorProto(self):
     d = pyb._LoadDescriptorProto()
 
@@ -63,14 +69,9 @@ class PybTest(unittest.TestCase):
     # Now instantiate another DescriptorSet, and use that to decode address book
     # protocol buffers.
 
-  def testAddressBook(self):
-    # This isn't bootstrapped -- this is just a small test
-    f = open(ADDRESS_BOOK_PROTO)
-    d = json.load(f)
-    f.close()
+  def testAddressBookDecode(self):
 
-    desc_set = pyb.DescriptorSet(d)
-    decode = desc_set.GetDecoder('.tutorial.AddressBook')
+    decode = self.address_book.GetDecoder('.tutorial.AddressBook')
     print decode
 
     f = open('testdata/addressbook/addressbook.encoded')
