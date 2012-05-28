@@ -31,7 +31,7 @@ class PybTest(unittest.TestCase):
     desc_set = pyb.DescriptorSet(d)
     decoder = desc_set.GetDecoder('proto2.EnumOptions')
     pprint(decoder)
-    pprint(desc_set.type_index)
+    #pprint(desc_set.type_index)
 
 
 

@@ -268,8 +268,13 @@ def IndexTypes(descriptor_set, type_index):
   # TODO: reflect the directory structure of 'file'
   for f in descriptor_set['file']:
     package = f.get('package', '')
-    IndexMessages(f['message_type'], package, [], root, type_index)
-    IndexEnums(f.get('enum_type', []), root)
+    if package:
+      subtree = {}
+      root[package] = subtree
+    else:
+      subtree = root
+    IndexMessages(f['message_type'], package, [], subtree, type_index)
+    IndexEnums(f.get('enum_type', []), subtree)
 
   #print.pprint(pool.keys())
   return root
