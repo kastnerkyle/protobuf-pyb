@@ -321,6 +321,12 @@ class Decoder(object):
   def __init__(self, decoders):
     # TODO: decoders should be attached to a FakeMessage?  Then GetDecoder #
     # should construct a _FakeMessage, and return the ParseFromString method
+
+    # I think python_message.py needs dynamic bootstrapping.  Because
+    # InitMessage takes a descriptor, which I think is a proto object itself.
+    # Crap.
+    # And then encoding is an issue too.  Probably need your own Message type.
+
     self.decoders = decoders
 
   def __call__(self, buffer):
@@ -344,6 +350,7 @@ class Decoder(object):
           pos = new_pos
         else:
           pos = field_decoder(buffer, new_pos, end, self, field_dict)
+      print field_dict
       return pos
 
     return InternalParse(buffer, 0, len(buffer))

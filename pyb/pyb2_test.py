@@ -50,6 +50,20 @@ class PybTest(unittest.TestCase):
     buf = f.read()
     print decode(buf)
 
+  def testTrivial(self):
+    # This isn't bootstrapped -- this is just a small test
+    f = open('testdata/trivial/test.desc.json-from-pyb')
+    d = json.load(f)
+    f.close()
+    print d
+    desc_set = pyb.DescriptorSet(d)
+    decode = desc_set.GetDecoder('Test1')
+
+    f = open('test.bin')
+    buf = f.read()
+    result = decode(buf)
+    print 'RESULT', result
+
 
 
 if __name__ == '__main__':
