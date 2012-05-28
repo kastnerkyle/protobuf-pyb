@@ -9,76 +9,22 @@ Better version of pyb where we:
   - Compile the schema into a tree of decoding functions.
   - Lazily decode?  I don't see a need for this now, but it might fall out.
 
-
 We reuse encoder.py, decoder.py, and wire_format.py from the open source Python
 implementation.
 
 Now all we have to do is walk through the descriptor and construct a tree of
 decoders.
 
-Then we get the top level one, and call
 
+Dynamic bootstrapping
+----------------------
 
-# Dynamic bootstrapping, done at startup
-
-descriptor_proto = json.load("the meta descriptor as JSON")
-
-meta_desc_set = MakeTypes(descriptor_proto, type_index)
-
-# This is done per message
-
-address_book_desc_bytes = <Load binary descriptor addressbook.desc.encoded>
-# decode raw data; FileDescriptorSet is equivalent of the proto file
-address_book_proto = meta_desc_set.decode("google.protobuf.FileDescriptorSet",
-                                          address_book_desc_bytes)
-# Now create encoders and decoders?
-address_book_desc = MakeTypes(address_book_proto, type_index)
-
-
-address_book_bytes = <Load binary descriptor addressbook.desc.encoded>
-
-dict = address_book_desc.decode("address_book.AddressBook, address_book_bytes)
-
-
-
-You may only need to encode XOR decode a given message type.
-
-So how about:
-
-# create an object from the data
-address_book_desc = DescriptorSet(address_book_proto, type_index)
-# get an coder
-address_book_e = address_book_desc.GetEncoder("address_book.AddressBook")
-address_book_d = address_book_desc.GetDecoder("address_book.AddressBook")
-
-<byte string> = address_book_e.encode({ person: ... })
-{ person: ... } = address_book_e.dcode(<byte string>)
-
-
-from python_message.py:
-
-
-Encoding loop:
-
-  def _IsPresent(item):
-    "Given a (FieldDescriptor, value) tuple from _fields, return true if the
-    value should be included in the list returned by ListFields()."
-
-    if item[0].label == _FieldDescriptor.LABEL_REPEATED:
-      return bool(item[1])
-    elif item[0].cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
-      return item[1]._is_present_in_parent
-    else:
-      return True
-
-  def ListFields(self):
-    all_fields = [item for item in self._fields.iteritems() if _IsPresent(item)]
-    all_fields.sort(key = lambda item: item[0].number)
-    return all_fields
-
-  def InternalSerialize(self, write_bytes):
-    for field_descriptor, field_value in self.ListFields():
-      field_descriptor._encoder(write_bytes, field_value)
+1. Start with the meta descriptor as JSON
+2. Create pyb.DescriptorSet from it
+3. Decode a binary descriptor (e.g. addressbook) using the DescriptorSet,
+getting a dictinoary
+3. Create a pyb.DescriptorSet from that
+4. Decode and encode regular messages using the descriptor
 
 """
 
@@ -96,109 +42,10 @@ except ImportError:
 import lookup
 import decoder
 import encoder
-import type_checkers
-print type_checkers
 
 
 class Error(Exception):
   pass
-
-
-# REFERENCE CODE FROM PROTO2
-
-
-def _DefaultValueConstructorForField(field):
-  """Returns a function which returns a default value for a field.
-
-  Args:
-    field: FieldDescriptor object for this field.
-
-  The returned function has one argument:
-    message: Message instance containing this field, or a weakref proxy
-      of same.
-
-  That function in turn returns a default value for this field.  The default
-    value may refer back to |message| via a weak reference.
-  """
-
-  if field.label == _FieldDescriptor.LABEL_REPEATED:
-    if field.default_value != []:
-      raise ValueError('Repeated field default value not empty list: %s' % (
-          field.default_value))
-    if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
-      # We can't look at _concrete_class yet since it might not have
-      # been set.  (Depends on order in which we initialize the classes).
-      message_type = field.message_type
-      def MakeRepeatedMessageDefault(message):
-        return containers.RepeatedCompositeFieldContainer(
-            message._listener_for_children, field.message_type)
-      return MakeRepeatedMessageDefault
-    else:
-      type_checker = type_checkers.GetTypeChecker(field.cpp_type, field.type)
-      def MakeRepeatedScalarDefault(message):
-        return containers.RepeatedScalarFieldContainer(
-            message._listener_for_children, type_checker)
-      return MakeRepeatedScalarDefault
-
-  if field.cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
-    # _concrete_class may not yet be initialized.
-    message_type = field.message_type
-    def MakeSubMessageDefault(message):
-      result = message_type._concrete_class()
-      result._SetListener(message._listener_for_children)
-      return result
-    return MakeSubMessageDefault
-
-  def MakeScalarDefault(message):
-    return field.default_value
-  return MakeScalarDefault
-
-
-def _IsMessageSetExtension(field):
-  return (field.is_extension and
-          field.containing_type.has_options and
-          field.containing_type.GetOptions().message_set_wire_format and
-          field.type == _FieldDescriptor.TYPE_MESSAGE and
-          field.message_type == field.extension_scope and
-          field.label == _FieldDescriptor.LABEL_OPTIONAL)
-
-
-def _AttachFieldHelpers(cls, field_descriptor):
-  is_repeated = (field_descriptor.label == _FieldDescriptor.LABEL_REPEATED)
-  is_packed = (field_descriptor.has_options and
-               field_descriptor.GetOptions().packed)
-
-  # TODO: Need to handle message set encoding in pyb
-  if _IsMessageSetExtension(field_descriptor):
-    field_encoder = encoder.MessageSetItemEncoder(field_descriptor.number)
-    sizer = encoder.MessageSetItemSizer(field_descriptor.number)
-  else:
-    field_encoder = type_checkers.TYPE_TO_ENCODER[field_descriptor.type](
-        field_descriptor.number, is_repeated, is_packed)
-    sizer = type_checkers.TYPE_TO_SIZER[field_descriptor.type](
-        field_descriptor.number, is_repeated, is_packed)
-
-  field_descriptor._encoder = field_encoder
-  field_descriptor._sizer = sizer
-  field_descriptor._default_constructor = _DefaultValueConstructorForField(
-      field_descriptor)
-
-  def AddDecoder(wiretype, is_packed):
-    tag_bytes = encoder.TagBytes(field_descriptor.number, wiretype)
-    cls._decoders_by_tag[tag_bytes] = (
-        type_checkers.TYPE_TO_DECODER[field_descriptor.type](
-            field_descriptor.number, is_repeated, is_packed,
-            field_descriptor, field_descriptor._default_constructor))
-
-  AddDecoder(type_checkers.FIELD_TYPE_TO_WIRE_TYPE[field_descriptor.type],
-             False)
-
-  if is_repeated and wire_format.IsTypePackable(field_descriptor.type):
-    # To support wire compatibility of adding packed = true, add a decoder for
-    # packed values regardless of the field's options.
-    AddDecoder(wire_format.WIRETYPE_LENGTH_DELIMITED, True)
-
-# END
 
 
 def PrintSubtree(subtree, indent=0):
