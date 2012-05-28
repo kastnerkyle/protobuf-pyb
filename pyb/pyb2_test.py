@@ -86,6 +86,17 @@ class PybTest(unittest.TestCase):
     print 'RESULT'
     pprint(result)
 
+  def testAddressBookEncode(self):
+    encode = self.address_book.GetEncoder('.tutorial.Person')
+    bytes = encode({'name': 'Jill'})
+    print 'BYTES', repr(bytes)
+
+    encode = self.address_book.GetEncoder('.tutorial.AddressBook')
+
+    # TODO: Have to test for required fields?
+    bytes = encode({'person': [{'name': 'Jill'}]})
+    print 'BYTES', repr(bytes)
+
   def testTrivialDecode(self):
     # This isn't bootstrapped -- this is just a small test
 
@@ -100,7 +111,6 @@ class PybTest(unittest.TestCase):
   def testTrivialEncode(self):
     # This isn't bootstrapped -- this is just a small test
 
-    # TODO: Fix this -- if there's no package
     encode = self.trivial.GetEncoder('.Test1')
     bytes = encode({'a': 150})
     print 'BYTES', repr(bytes)
