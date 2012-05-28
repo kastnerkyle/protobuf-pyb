@@ -36,6 +36,20 @@ class PybTest(unittest.TestCase):
 
     #pprint(desc_set.type_index.keys())
 
+  def testAddressBook(self):
+    # This isn't bootstrapped -- this is just a small test
+    f = open('testdata/addressbook/addressbook.desc.json-from-protoc')
+    d = json.load(f)
+    f.close()
+
+    desc_set = pyb.DescriptorSet(d)
+    decode = desc_set.GetDecoder('tutorial.AddressBook')
+    print decode
+
+    f = open('testdata/addressbook/addressbook.encoded')
+    buf = f.read()
+    print decode(buf)
+
 
 
 if __name__ == '__main__':

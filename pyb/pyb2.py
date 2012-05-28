@@ -221,6 +221,7 @@ class DescriptorSet(object):
     # self.decoder_root = {}
 
     print decoders
+    return Decoder(decoders)
 
     return message_dict
 
@@ -238,6 +239,37 @@ class DescriptorSet(object):
 
   def GetEncoder(self, message_name):
     pass
+
+
+class Decoder(object):
+
+  def __init__(self, decoders):
+    self.decoders = decoders
+
+  def __call__(self, buffer):
+    local_ReadTag = decoder.ReadTag
+    local_SkipField = decoder.SkipField
+
+    # NOTE: These are the objects in decoder.py wrapped in _SimpleDecoder, etc.
+    decoders_by_tag = self.decoders
+
+    def InternalParse(buffer, pos, end):
+      #self._Modified()
+      field_dict = {}
+      while pos != end:
+        (tag_bytes, new_pos) = local_ReadTag(buffer, pos)
+        field_decoder = decoders_by_tag.get(tag_bytes)
+        if field_decoder is None:
+          new_pos = local_SkipField(buffer, new_pos, end, tag_bytes)
+          if new_pos == -1:
+            return pos
+          pos = new_pos
+        else:
+          pos = field_decoder(buffer, new_pos, end, self, field_dict)
+      return pos
+
+    return InternalParse(buffer, 0, len(buffer))
+
 
 
 class Message(object):
