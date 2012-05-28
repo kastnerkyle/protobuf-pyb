@@ -250,46 +250,6 @@ def Walk(root, type_name):
   return value
 
 
-class Decoder(object):
-
-  def __init__(self, decoders):
-    # TODO: decoders should be attached to a FakeMessage?  Then GetDecoder #
-    # should construct a _FakeMessage, and return the ParseFromString method
-
-    # I think python_message.py needs dynamic bootstrapping.  Because
-    # InitMessage takes a descriptor, which I think is a proto object itself.
-    # Crap.
-    # And then encoding is an issue too.  Probably need your own Message type.
-
-    self.decoders = decoders
-
-  def __call__(self, buffer):
-    local_ReadTag = decoder.ReadTag
-    local_SkipField = decoder.SkipField
-
-    # NOTE: These are the objects in decoder.py wrapped in _SimpleDecoder, etc.
-    decoders_by_tag = self.decoders
-
-    def InternalParse(buffer, pos, end):
-      #self._Modified()
-      field_dict = {}
-      while pos != end:
-        print 'POS:', pos
-        (tag_bytes, new_pos) = local_ReadTag(buffer, pos)
-        field_decoder = decoders_by_tag.get(tag_bytes)
-        if field_decoder is None:
-          new_pos = local_SkipField(buffer, new_pos, end, tag_bytes)
-          if new_pos == -1:
-            return pos
-          pos = new_pos
-        else:
-          pos = field_decoder(buffer, new_pos, end, self, field_dict)
-      print field_dict
-      return pos
-
-    return InternalParse(buffer, 0, len(buffer))
-
-
 class _FakeMessage(object):
   """
   This is instantiated in GetDecoder -> _DefaultValueConstructor.
@@ -297,8 +257,8 @@ class _FakeMessage(object):
   We create decoders for the fields when constructing it.
   """
 
-  def __init__(self, type_name, root):
-    self.decoders = MakeDecoders(root, type_name)
+  def __init__(self, type_name, type_index):
+    self.decoders = MakeDecoders(type_index, type_name)
 
   def _InternalParse(self, buffer, pos, end):
     # These statements used to be one level up
@@ -308,7 +268,7 @@ class _FakeMessage(object):
 
     field_dict = {}
     while pos != end:
-      print 'POS:', pos
+      #print 'POS:', pos
       (tag_bytes, new_pos) = local_ReadTag(buffer, pos)
       field_decoder = decoders_by_tag.get(tag_bytes)
       if field_decoder is None:
@@ -318,7 +278,7 @@ class _FakeMessage(object):
         pos = new_pos
       else:
         pos = field_decoder(buffer, new_pos, end, self, field_dict)
-    print field_dict
+    print 'DICT', field_dict
     return pos
 
   def __call__(self, buffer):
@@ -327,15 +287,15 @@ class _FakeMessage(object):
 
 class _FakeCompositeList(list):
 
-  def __init__(self, type_name, root):
+  def __init__(self, type_name, type_index):
     self.type_name = type_name
-    self.root = root
+    self.type_index = type_index
 
   def add(self):
     """Return a new value of the given type.  Add it to the end of the list"""
 
     # ARGH, this might not be a message.
-    x = _FakeMessage(self.type_name, self.root)
+    x = _FakeMessage(self.type_name, self.type_index)
     self.append(x)
     return x
 
@@ -353,7 +313,7 @@ class _FakeScalarList(list):
     return x
 
 
-def _DefaultValueConstructor(field, root, is_repeated):
+def _DefaultValueConstructor(field, type_index, is_repeated):
   field_type = field['type']
   print "DEFAULT VALUE for", type
   type_name = field.get('type_name')
@@ -364,13 +324,13 @@ def _DefaultValueConstructor(field, root, is_repeated):
     type_name = field.get('type_name')
     assert type_name
     if is_repeated:
-      return lambda m: _FakeCompositeList(type_name, root)
+      return lambda m: _FakeCompositeList(type_name, type_index)
     else:
-      return lambda m: _FakeMessage(type_name, root)
+      return lambda m: _FakeMessage(type_name, type_index)
 
   else:  # scalar
     if is_repeated:
-      return lambda m: _FakeScalarList(field, root)
+      return lambda m: _FakeScalarList(field, type_index)
     else:
       return lambda m: field['default_value']
 
@@ -404,21 +364,28 @@ class DescriptorSet(object):
 
     """
     #decoders = MakeDecoders(self.root, type_name)
-    return _FakeMessage(type_name, self.root)
+    return _FakeMessage(type_name, self.type_index)
 
   def GetEncoder(self, type_name):
     pass
 
 
-def MakeDecoders(root, type_name):
+def MakeDecoders(type_index, type_name):
   """
   """
   #pprint(self.root)
-  message_dict = Walk(root, type_name)
+  #PrintSubtree(root)
+  message_dict = type_index[type_name]
+  #Walk(root, type_name)
   # For other types
 
   decoders = {}  # tag bytes -> decoder function
-  for f in message_dict['field']:
+  fields = message_dict.get('field')
+  if not fields:
+    print message_dict
+    raise Error('No fields for %s' % type_name)
+
+  for f in fields:
     print f
 
     field_type = f['type']  # a string
@@ -437,7 +404,7 @@ def MakeDecoders(root, type_name):
 
     # key for field_dict
     key = f['name']
-    new_default = _DefaultValueConstructor(f, root, is_repeated)
+    new_default = _DefaultValueConstructor(f, type_index, is_repeated)
 
     # Now create the decoder by calling the constructor
     decoders[tag_bytes] = decoder(f['number'], is_repeated, is_packed, key,

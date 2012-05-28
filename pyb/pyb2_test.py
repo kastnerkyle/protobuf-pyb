@@ -17,6 +17,8 @@ except ImportError:
 
 import pyb2 as pyb # module under test
 
+TEST_PROTO = 'testdata/trivial/test.desc.json-from-pyb'
+ADDRESS_BOOK_PROTO = 'testdata/addressbook/addressbook.desc.json-from-protoc'
 
 class PybTest(unittest.TestCase):
 
@@ -38,12 +40,12 @@ class PybTest(unittest.TestCase):
 
   def testAddressBook(self):
     # This isn't bootstrapped -- this is just a small test
-    f = open('testdata/addressbook/addressbook.desc.json-from-protoc')
+    f = open(ADDRESS_BOOK_PROTO)
     d = json.load(f)
     f.close()
 
     desc_set = pyb.DescriptorSet(d)
-    decode = desc_set.GetDecoder('tutorial.AddressBook')
+    decode = desc_set.GetDecoder('.tutorial.AddressBook')
     print decode
 
     f = open('testdata/addressbook/addressbook.encoded')
@@ -52,7 +54,7 @@ class PybTest(unittest.TestCase):
 
   def testTrivial(self):
     # This isn't bootstrapped -- this is just a small test
-    f = open('testdata/trivial/test.desc.json-from-pyb')
+    f = open(TEST_PROTO)
     d = json.load(f)
     f.close()
     print d
@@ -63,6 +65,25 @@ class PybTest(unittest.TestCase):
     buf = f.read()
     result = decode(buf)
     print 'RESULT', result
+
+  def testIndexTypes(self):
+    f = open(TEST_PROTO)
+    d = json.load(f)
+    f.close()
+
+    type_index = {}
+    root = pyb.IndexTypes(d, type_index)
+    pyb.PrintSubtree(root)
+    pprint(type_index)
+
+    f = open(ADDRESS_BOOK_PROTO)
+    d = json.load(f)
+    f.close()
+
+    type_index = {}
+    root = pyb.IndexTypes(d, type_index)
+    pyb.PrintSubtree(root)
+    pprint(type_index)
 
 
 
