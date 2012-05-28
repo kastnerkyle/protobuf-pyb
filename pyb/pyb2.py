@@ -445,7 +445,8 @@ class _FakeScalarList(list):
 
 class DescriptorSet(object):
   """
-  Represents proto message definitions, where the definitions can span.
+  Represents proto message definitions, where the definitions can span multiple
+  files.  (Corresponds to proto2.FileDescriptorSet)
   """
 
   def __init__(self, desc_dict):
@@ -490,7 +491,47 @@ class DescriptorSet(object):
     encoders, sizers = _MakeEncoders(self.type_index, self.encoders_index, type_name)
     self.encoders_index[type_name] = encoders
     self.sizers_index[type_name] = sizers
-    m = _FakeEncodeMessage(self.encoders_index, self.sizers_index, type_name)
+    return _FakeEncodeMessage(self.encoders_index, self.sizers_index, type_name)
+
+
+class _FakeEncodeMessage(object):
+
+  def __init__(self, encoders_index, sizers_index, type_name):
+    self.encoders_index = encoders_index
+    self.sizers_index = sizers_index
+    self.type_name = type_name
+
+  def __call__(self, obj):
+    """
+    Args:
+      obj: A dictinoary
+    """
+    buf = []
+    write_bytes = buf.append
+    self._InternalSerialize(write_bytes)
+    return ''.join(buf)
+
+  def _IsPresent(item):
+    """
+    Given a (FieldDescriptor, value) tuple from _fields, return true if the
+    value should be included in the list returned by ListFields()."""
+
+    if item[0].label == _FieldDescriptor.LABEL_REPEATED:
+      return bool(item[1])
+    elif item[0].cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
+      return item[1]._is_present_in_parent
+    else:
+      return True
+
+  def ListFields(self):
+    all_fields = [item for item in self._fields.iteritems() if _IsPresent(item)]
+    all_fields.sort(key = lambda item: item[0].number)
+    return all_fields
+
+  def _InternalSerialize(self, write_bytes):
+    for field_descriptor, field_value in self.ListFields():
+      field_descriptor._encoder(write_bytes, field_value)
+
 
 
 def IndexEnums(enums, root):
