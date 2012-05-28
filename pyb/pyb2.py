@@ -233,21 +233,78 @@ def PrintSubtree(subtree, indent=0):
     PrintSubtree(subtree[name], indent+2)
 
 
-def Walk(root, type_name):
-  parts = type_name.split('.')
-  value = root
-  for part in parts:
-    if not part:
-      # the references look like .tutorial.AddressBook for some reason, so just
-      # ignore leading '' component.
-      continue
-    try:
-      value = value[part]
-    except KeyError:
-      PrintSubtree(root)
-      raise Error("Expected one of %r, got %r (path = %r)" %
-                  (value.keys(), part, parts))
-  return value
+def _DefaultValueConstructor(field, type_index, is_repeated):
+  field_type = field['type']
+  print "DEFAULT VALUE for", type
+  type_name = field.get('type_name')
+  print "type name", type_name
+  repeated = (field['label'] == 'LABEL_REPEATED')
+
+  if field_type == 'TYPE_MESSAGE':
+    type_name = field.get('type_name')
+    assert type_name
+    if is_repeated:
+      return lambda m: _FakeCompositeList(type_name, type_index)
+    else:
+      # TODO: Error here:
+      # We are returning a new_default constructor to the decoder.  But
+      # _FakeMessage instantiates decoders.  We need to do that ALL ahead of
+      # time, in _MakeDecoders.
+      return lambda m: _FakeMessage(type_name, type_index)
+
+  else:  # scalar
+    if is_repeated:
+      return lambda m: _FakeScalarList(field, type_index)
+    else:
+      return lambda m: field['default_value']
+
+
+def _MakeDecoders(type_index, type_name):
+  """
+  """
+  #pprint(self.root)
+  message_dict = type_index[type_name]
+  # For other types
+
+  decoders = {}  # tag bytes -> decoder function
+  fields = message_dict.get('field')
+  if not fields:
+    print message_dict
+    raise Error('No fields for %s' % type_name)
+
+  for f in fields:
+    print f
+
+    field_type = f['type']  # a string
+    wire_type = lookup.FIELD_TYPE_TO_WIRE_TYPE[field_type]  # int
+    tag_bytes = encoder.TagBytes(f['number'], wire_type)
+
+    # get a decoder constructor, e.g. MessageDecoder
+    decoder = lookup.TYPE_TO_DECODER[field_type]
+    is_repeated = (f['label'] == 'LABEL_REPEATED')
+    is_packed = False
+
+    #is_packed = (field_descriptor.has_options and
+    #             field_descriptor.GetOptions().packed)
+
+    # field_descriptor, field_descriptor._default_constructor))
+
+    # key for field_dict
+    key = f['name']
+    new_default = _DefaultValueConstructor(f, type_index, is_repeated)
+
+    # Now create the decoder by calling the constructor
+    decoders[tag_bytes] = decoder(f['number'], is_repeated, is_packed, key,
+                                  new_default)
+
+    print 'FIELD', f['name']
+    print 'field type', field_type
+    print 'wire type', wire_type
+
+  # Now we need to get decoders.  They can be memoized in this class.
+  # self.decoder_root = {}
+
+  return decoders
 
 
 class _FakeMessage(object):
@@ -263,7 +320,7 @@ class _FakeMessage(object):
   """
 
   def __init__(self, type_name, type_index):
-    self.decoders = MakeDecoders(type_index, type_name)
+    self.decoders = _MakeDecoders(type_index, type_name)
 
   def _InternalParse(self, buffer, pos, end):
     # These statements used to be one level up
@@ -319,28 +376,6 @@ class _FakeScalarList(list):
     return x
 
 
-def _DefaultValueConstructor(field, type_index, is_repeated):
-  field_type = field['type']
-  print "DEFAULT VALUE for", type
-  type_name = field.get('type_name')
-  print "type name", type_name
-  repeated = (field['label'] == 'LABEL_REPEATED')
-
-  if field_type == 'TYPE_MESSAGE':
-    type_name = field.get('type_name')
-    assert type_name
-    if is_repeated:
-      return lambda m: _FakeCompositeList(type_name, type_index)
-    else:
-      return lambda m: _FakeMessage(type_name, type_index)
-
-  else:  # scalar
-    if is_repeated:
-      return lambda m: _FakeScalarList(field, type_index)
-    else:
-      return lambda m: field['default_value']
-
-
 class DescriptorSet(object):
   """
   Represents proto message definitions, where the definitions can span.
@@ -372,61 +407,10 @@ class DescriptorSet(object):
                   Could also be "foo.bar.baz.Type"
 
     """
-    #decoders = MakeDecoders(self.root, type_name)
     return _FakeMessage(type_name, self.type_index)
 
   def GetEncoder(self, type_name):
     pass
-
-
-def MakeDecoders(type_index, type_name):
-  """
-  """
-  #pprint(self.root)
-  #PrintSubtree(root)
-  message_dict = type_index[type_name]
-  #Walk(root, type_name)
-  # For other types
-
-  decoders = {}  # tag bytes -> decoder function
-  fields = message_dict.get('field')
-  if not fields:
-    print message_dict
-    raise Error('No fields for %s' % type_name)
-
-  for f in fields:
-    print f
-
-    field_type = f['type']  # a string
-    wire_type = lookup.FIELD_TYPE_TO_WIRE_TYPE[field_type]  # int
-    tag_bytes = encoder.TagBytes(f['number'], wire_type)
-
-    # get a decoder constructor, e.g. MessageDecoder
-    decoder = lookup.TYPE_TO_DECODER[field_type]
-    is_repeated = (f['label'] == 'LABEL_REPEATED')
-    is_packed = False
-
-    #is_packed = (field_descriptor.has_options and
-    #             field_descriptor.GetOptions().packed)
-
-    # field_descriptor, field_descriptor._default_constructor))
-
-    # key for field_dict
-    key = f['name']
-    new_default = _DefaultValueConstructor(f, type_index, is_repeated)
-
-    # Now create the decoder by calling the constructor
-    decoders[tag_bytes] = decoder(f['number'], is_repeated, is_packed, key,
-                                  new_default)
-
-    print 'FIELD', f['name']
-    print 'field type', field_type
-    print 'wire type', wire_type
-
-  # Now we need to get decoders.  They can be memoized in this class.
-  # self.decoder_root = {}
-
-  return decoders
 
 
 def IndexEnums(enums, root):
