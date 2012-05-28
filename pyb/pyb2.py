@@ -125,6 +125,41 @@ print type_checkers
 class Error(Exception):
   pass
 
+class DescriptorSet(object):
+  def __init__(self, desc_dict):
+    """
+    desc_dict: Dictinoary representation of the descriptor
+    """
+    self.desc_dict = desc_dict
+    self.type_index = {}
+    self.root = IndexTypes(self.desc_dict, self.type_index)
+
+  def GetDecoder(self, message_name):
+    """
+    message_name: string "package.Type"
+                  Could also be "foo.bar.baz.Type"
+    """
+    return self.root
+
+    type_index = {}
+    IndexTypes(self.desc_dict, type_index)
+    return type_index
+
+    for f in self.desc_dict['file']:
+      for m in f['message_type']:
+        name = m['name']
+        print name
+        if name == 'FieldDescriptorProto':
+          #print m['enum_type']
+          for t in m['enum_type']:
+            enum_name = t['name']
+            if enum_name == 'Type':
+              value = t['value']
+    return 3
+
+  def GetEncoder(self, message_name):
+    pass
+
 
 class Message(object):
   """A record-like object with an associated schema.
@@ -139,14 +174,14 @@ class Message(object):
 
 
 
-def MakeEnums(enums, message_type):
+def IndexEnums(enums, root):
   """Given the enum type information, attach it to the Message class."""
   # Like proto2, we ignore the enum type name.  All enums values live in the
   # parent namespace.  This prevents the annoyance of long chains of dotted
   # names.
   for enum_type in enums:
     for value in enum_type['value']:
-      setattr(message_type, value['name'], value['number'])
+      root[value['name']] = value['number']
 
 
 def MakeMessageType(type_name, fields):
@@ -179,7 +214,7 @@ def MakeMessageType(type_name, fields):
   return type(str(type_name), (Message,), class_attrs)
       
 
-def MakeMessageTypes(messages, package, name_list, root, type_index):
+def IndexMessages(messages, package, name_list, root, type_index):
   """Create a hierarchy of message types, given information from the
   DescriptorSet.
   
@@ -198,29 +233,25 @@ def MakeMessageTypes(messages, package, name_list, root, type_index):
     full_name = '.'.join(names)
 
     fields = message_data['field']
-    message_type = MakeMessageType(full_name, fields) 
-    # Attach the subtype to the root type
-    setattr(root, type_name, message_type)
+
+    root[type_name] = message_data
+
     # Populate the type index owned by an instance of DescriptorSet
     key = '.%s.%s' % (package, full_name)
-    type_index[key] = message_type
-    # Every message type needs the type index, in order to decode its subtypes.
-    # (We could technically make an index for each type containing its subtypes,
-    # but it's simpler and cheaper to just use a 'global' one everywhere)
-    message_type.type_index = type_index
+    type_index[key] = message_data
 
     subtypes = message_data.get('nested_type', [])
     # Recursive call with 'message_type' as the new root
-    MakeMessageTypes(subtypes, package, names, message_type, type_index)
-    MakeEnums(message_data.get('enum_type', []), message_type)
+    IndexMessages(subtypes, package, names, root, type_index)
+    IndexEnums(message_data.get('enum_type', []), root)
 
 
 class _ProtoPackage(object):
   """Used to create protobuf namespaces."""
 
 
-def MakeTypes(descriptor_set, type_index):
-  """Make a tree of Message types.
+def IndexTypes(descriptor_set, type_index):
+  """Make a dict of foo.bar.baz.Type -> DescriptorProto
 
   Args:
     descriptor_set: A JSON-like dictionary representation of the
@@ -232,13 +263,13 @@ def MakeTypes(descriptor_set, type_index):
   """
   # Flatten the file structure, and look up types by their fully qualified
   # names
-  root = _ProtoPackage()
+  root = {}
 
   # TODO: reflect the directory structure of 'file'
   for f in descriptor_set['file']:
     package = f.get('package', '')
-    MakeMessageTypes(f['message_type'], package, [], root, type_index)
-    MakeEnums(f.get('enum_type', []), root)
+    IndexMessages(f['message_type'], package, [], root, type_index)
+    IndexEnums(f.get('enum_type', []), root)
 
   #print.pprint(pool.keys())
   return root
@@ -264,11 +295,11 @@ def main(argv):
 
   f = open('testdata/addressbook/addressbook.desc.json-from-protoc')
   d = json.load(f)
-  MakeTypes(d, type_index)
+  IndexTypes(d, type_index)
   print 'INDEX', type_index
 
   type_index = {}
-  MakeTypes(descriptor_proto, type_index)
+  IndexTypes(descriptor_proto, type_index)
   print 'INDEX', type_index
 
 
