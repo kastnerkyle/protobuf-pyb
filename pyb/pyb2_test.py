@@ -95,8 +95,11 @@ class PybTest(unittest.TestCase):
 
     # TODO: Fix this -- if there's no package
     encode = self.trivial.GetEncoder('.Test1')
-    bytes = encode({'a': 199})
+    bytes = encode({'a': 150})
     print 'BYTES', repr(bytes)
+    f = open('test2.bin', 'w')
+    f.write(bytes)
+    f.close()
 
   def testIndexTypes(self):
     f = open(TEST_PROTO)

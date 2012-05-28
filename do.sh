@@ -85,13 +85,13 @@ maketest() {
 
   # WTF, hexdump is weird
   hex test.bin
-  echo
 }
 
 hex() {
   # WTF, hexdump is weird
   # TODO: Make a generic script out of this
   hexdump -v -e '"" 1/1 "%02X" " "' "$@"
+  echo
 }
 
 bootstrap() {

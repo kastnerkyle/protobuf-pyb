@@ -538,7 +538,9 @@ class _FakeEncodeMessage(object):
     # TODO: sort the fields
 
     for field_name, field_value in self.obj.iteritems():
+      print 'FIELD NAME', field_name
       encoder = self.encoders[field_name]
+      print 'ENCODER', encoder
       encoder(write_bytes, field_value)
 
 
