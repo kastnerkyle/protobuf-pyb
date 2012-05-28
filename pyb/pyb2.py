@@ -117,6 +117,7 @@ try:
 except ImportError:
   import simplejson as json
 
+import lookup
 import decoder
 import encoder
 import type_checkers
@@ -125,6 +126,54 @@ print type_checkers
 
 class Error(Exception):
   pass
+
+
+# REFERENCE CODE FROM PROTO2
+
+def _IsMessageSetExtension(field):
+  return (field.is_extension and
+          field.containing_type.has_options and
+          field.containing_type.GetOptions().message_set_wire_format and
+          field.type == _FieldDescriptor.TYPE_MESSAGE and
+          field.message_type == field.extension_scope and
+          field.label == _FieldDescriptor.LABEL_OPTIONAL)
+
+
+def _AttachFieldHelpers(cls, field_descriptor):
+  is_repeated = (field_descriptor.label == _FieldDescriptor.LABEL_REPEATED)
+  is_packed = (field_descriptor.has_options and
+               field_descriptor.GetOptions().packed)
+
+  if _IsMessageSetExtension(field_descriptor):
+    field_encoder = encoder.MessageSetItemEncoder(field_descriptor.number)
+    sizer = encoder.MessageSetItemSizer(field_descriptor.number)
+  else:
+    field_encoder = type_checkers.TYPE_TO_ENCODER[field_descriptor.type](
+        field_descriptor.number, is_repeated, is_packed)
+    sizer = type_checkers.TYPE_TO_SIZER[field_descriptor.type](
+        field_descriptor.number, is_repeated, is_packed)
+
+  field_descriptor._encoder = field_encoder
+  field_descriptor._sizer = sizer
+  field_descriptor._default_constructor = _DefaultValueConstructorForField(
+      field_descriptor)
+
+  def AddDecoder(wiretype, is_packed):
+    tag_bytes = encoder.TagBytes(field_descriptor.number, wiretype)
+    cls._decoders_by_tag[tag_bytes] = (
+        type_checkers.TYPE_TO_DECODER[field_descriptor.type](
+            field_descriptor.number, is_repeated, is_packed,
+            field_descriptor, field_descriptor._default_constructor))
+
+  AddDecoder(type_checkers.FIELD_TYPE_TO_WIRE_TYPE[field_descriptor.type],
+             False)
+
+  if is_repeated and wire_format.IsTypePackable(field_descriptor.type):
+    # To support wire compatibility of adding packed = true, add a decoder for
+    # packed values regardless of the field's options.
+    AddDecoder(wire_format.WIRETYPE_LENGTH_DELIMITED, True)
+
+# END
 
 
 def Walk(root, message_name):
@@ -139,6 +188,7 @@ def Walk(root, message_name):
 
 
 class DescriptorSet(object):
+
   def __init__(self, desc_dict):
     """
     desc_dict: Dictinoary representation of the descriptor
@@ -158,12 +208,21 @@ class DescriptorSet(object):
     """
     #pprint(self.root)
     message_dict = Walk(self.root, message_name)
+    decoders = {}  # tag bytes -> decoder function
+    for f in message_dict['field']:
+      field_type = f['type']  # a string
+      wire_type = lookup.FIELD_TYPE_TO_WIRE_TYPE[field_type]  # int
+      tag_bytes = encoder.TagBytes(f['number'], wire_type)
+      # get a function
+      decoder = lookup.TYPE_TO_DECODER[field_type]
+      decoders[tag_bytes] = decoder
 
     # Now we need to get decoders.  They can be memoized in this class.
     # self.decoder_root = {}
 
+    print decoders
+
     return message_dict
-    return type_index
 
     for f in self.desc_dict['file']:
       for m in f['message_type']:

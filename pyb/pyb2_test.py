@@ -32,9 +32,9 @@ class PybTest(unittest.TestCase):
 
     decoder = desc_set.GetDecoder('proto2.DescriptorProto')
     print 'DESCRIPTOR'
-    pprint(decoder)
+    #pprint(decoder)
 
-    pprint(desc_set.type_index.keys())
+    #pprint(desc_set.type_index.keys())
 
 
 
