@@ -216,15 +216,6 @@ def PrintSubtree(subtree, indent=0):
 
 
 def _MakeEncoders(type_index, encoders_index, type_name):
-  field_encoder = type_checkers.TYPE_TO_ENCODER[field_descriptor.type](
-      field_descriptor.number, is_repeated, is_packed)
-  sizer = type_checkers.TYPE_TO_SIZER[field_descriptor.type](
-      field_descriptor.number, is_repeated, is_packed)
-
-  field_descriptor._encoder = field_encoder
-  field_descriptor._sizer = sizer
-  field_descriptor._default_constructor = _DefaultValueConstructorForField(
-      field_descriptor)
 
   message_dict = type_index[type_name]
   encoders = {}  # field name -> encoder function
@@ -237,34 +228,29 @@ def _MakeEncoders(type_index, encoders_index, type_name):
 
   for f in fields:
     field_type = f['type']  # a string
+    number = f['number']  # a string
+    name = f['name']  # a string
     wire_type = lookup.FIELD_TYPE_TO_WIRE_TYPE[field_type]  # int
 
+    print '---------'
+    print 'encoders FIELD name', f['name']
+    print 'encoders field type', field_type
+    print 'encoders wire type', wire_type
 
-    tag_bytes = encoder.TagBytes(f['number'], wire_type)
+
+    #tag_bytes = encoder.TagBytes(number, wire_type)
 
     # get a decoder constructor, e.g. MessageDecoder
-    decoder = lookup.TYPE_TO_DECODER[field_type]
+    make_encoder = lookup.TYPE_TO_ENCODER[field_type]
+    make_sizer = lookup.TYPE_TO_SIZER[field_type]
+
     is_repeated = (f['label'] == 'LABEL_REPEATED')
     is_packed = False
 
-    #is_packed = (field_descriptor.has_options and
-    #             field_descriptor.GetOptions().packed)
-
-    # field_descriptor, field_descriptor._default_constructor))
-
-    # key for field_dict
-    key = f['name']
-    new_default = _DefaultValueConstructor(f, type_index, decoders_index,
-                                           is_repeated)
-
     # Now create the decoder by calling the constructor
-    decoders[tag_bytes] = decoder(f['number'], is_repeated, is_packed, key,
-                                  new_default)
-
-    print '---------'
-    print 'FIELD name', f['name']
-    print 'field type', field_type
-    print 'wire type', wire_type
+    encoders[name] = make_encoder(number, is_repeated, is_packed)
+    sizers[name] = make_sizer(number, is_repeated, is_packed)
+  return encoders, sizers
 
 
 #
@@ -474,6 +460,7 @@ class DescriptorSet(object):
     # { ".package.Type" : { "tag bytes" -> <decode function> } ... }
     self.decoders_index = {}
     self.encoders_index = {}
+    self.sizers_index = {}
 
   def GetDecoder(self, type_name):
     """
@@ -500,9 +487,10 @@ class DescriptorSet(object):
     return m.decode
 
   def GetEncoder(self, type_name):
-    encoders = _MakeEncoders(self.type_index, self.encoders_index, type_name)
+    encoders, sizers = _MakeEncoders(self.type_index, self.encoders_index, type_name)
     self.encoders_index[type_name] = encoders
-    m = _FakeMessage(self.decoders_index, type_name)
+    self.sizers_index[type_name] = sizers
+    m = _FakeEncodeMessage(self.encoders_index, self.sizers_index, type_name)
 
 
 def IndexEnums(enums, root):

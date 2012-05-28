@@ -8,6 +8,7 @@ __author__ = 'Andy Chu'
 
 import wire_format
 import decoder
+import encoder
 
 
 # Pyb version of type_checkers.FIELD_TYPE_TO_WIRE_TYPE.
@@ -56,3 +57,49 @@ TYPE_TO_DECODER = {
     'TYPE_SINT32': decoder.SInt32Decoder,
     'TYPE_SINT64': decoder.SInt64Decoder,
     }
+
+# Maps from field types to encoder constructors.
+TYPE_TO_ENCODER = {
+    'TYPE_DOUBLE': encoder.DoubleEncoder,
+    'TYPE_FLOAT': encoder.FloatEncoder,
+    'TYPE_INT64': encoder.Int64Encoder,
+    'TYPE_UINT64': encoder.UInt64Encoder,
+    'TYPE_INT32': encoder.Int32Encoder,
+    'TYPE_FIXED64': encoder.Fixed64Encoder,
+    'TYPE_FIXED32': encoder.Fixed32Encoder,
+    'TYPE_BOOL': encoder.BoolEncoder,
+    'TYPE_STRING': encoder.StringEncoder,
+    'TYPE_GROUP': encoder.GroupEncoder,
+    'TYPE_MESSAGE': encoder.MessageEncoder,
+    'TYPE_BYTES': encoder.BytesEncoder,
+    'TYPE_UINT32': encoder.UInt32Encoder,
+    'TYPE_ENUM': encoder.EnumEncoder,
+    'TYPE_SFIXED32': encoder.SFixed32Encoder,
+    'TYPE_SFIXED64': encoder.SFixed64Encoder,
+    'TYPE_SINT32': encoder.SInt32Encoder,
+    'TYPE_SINT64': encoder.SInt64Encoder,
+    }
+
+
+# Maps from field types to sizer constructors.
+TYPE_TO_SIZER = {
+    'TYPE_DOUBLE': encoder.DoubleSizer,
+    'TYPE_FLOAT': encoder.FloatSizer,
+    'TYPE_INT64': encoder.Int64Sizer,
+    'TYPE_UINT64': encoder.UInt64Sizer,
+    'TYPE_INT32': encoder.Int32Sizer,
+    'TYPE_FIXED64': encoder.Fixed64Sizer,
+    'TYPE_FIXED32': encoder.Fixed32Sizer,
+    'TYPE_BOOL': encoder.BoolSizer,
+    'TYPE_STRING': encoder.StringSizer,
+    'TYPE_GROUP': encoder.GroupSizer,
+    'TYPE_MESSAGE': encoder.MessageSizer,
+    'TYPE_BYTES': encoder.BytesSizer,
+    'TYPE_UINT32': encoder.UInt32Sizer,
+    'TYPE_ENUM': encoder.EnumSizer,
+    'TYPE_SFIXED32': encoder.SFixed32Sizer,
+    'TYPE_SFIXED64': encoder.SFixed64Sizer,
+    'TYPE_SINT32': encoder.SInt32Sizer,
+    'TYPE_SINT64': encoder.SInt64Sizer,
+    }
+
