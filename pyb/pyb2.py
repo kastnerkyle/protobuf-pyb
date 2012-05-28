@@ -236,6 +236,15 @@ def Walk(root, message_name):
 
 
 class _FakeMessage(object):
+  """
+  This is instantiated in GetDecoder -> _DefaultValueConstructor.
+
+  We create decoders for the fields when constructing it.
+  """
+
+  def __init__(self, field_dict, root):
+    self.field_dict = field_dict
+    self.root = root
 
   def _InternalParse(self, buffer, pos, end):
     # TODO: We should have a bunch of decoders methods
@@ -244,17 +253,22 @@ class _FakeMessage(object):
 
 
 class _FakeList(list):
+  def __init__(self, field_dict, root):
+    self.field_dict = field_dict
+    self.root = root
 
   def add(self):
     """Return a new value of the given type.  Add it to the end of the list"""
-    x = _FakeMessage()
+
+    # ARGH, this might not be a message.
+    x = _FakeMessage(self.field_dict, self.root)
     self.append(x)
     return x
 
 
-def _DefaultValueConstructor(field):
+def _DefaultValueConstructor(field, root):
   if field['label'] == 'LABEL_REPEATED':
-    return lambda m: _FakeList()
+    return lambda m: _FakeList(field, root)
   else:
     return lambda m: field['default_value']
 
@@ -275,47 +289,66 @@ class DescriptorSet(object):
 
   def GetDecoder(self, message_name):
     """
+    Return a callable that can decode a message.
+
+    This should recursively instantiate (or get memoized) Message types (not
+    message instances?).
+
+    decoder.py unfortunately uses class polymorphism for dispatch.  It calls
+    value._InternalParse a lot.
+
     message_name: string "package.Type"
                   Could also be "foo.bar.baz.Type"
+
     """
-    #pprint(self.root)
-    message_dict = Walk(self.root, message_name)
-    decoders = {}  # tag bytes -> decoder function
-    for f in message_dict['field']:
-      print f
-      field_type = f['type']  # a string
-      wire_type = lookup.FIELD_TYPE_TO_WIRE_TYPE[field_type]  # int
-      tag_bytes = encoder.TagBytes(f['number'], wire_type)
-      # get a function
-      decoder = lookup.TYPE_TO_DECODER[field_type]
-      is_repeated = (f['label'] == 'LABEL_REPEATED')
-      is_packed = False
-
-      #is_packed = (field_descriptor.has_options and
-      #             field_descriptor.GetOptions().packed)
-
-      # field_descriptor, field_descriptor._default_constructor))
-
-      # key for field_dict
-      key = f['name']
-      # TODO: this needs copying semantics
-      new_default = _DefaultValueConstructor(f)
-
-      decoders[tag_bytes] = decoder(f['number'], is_repeated, is_packed, key,
-                                    new_default)
-
-      print 'FIELD', f['name']
-      print 'field type', field_type
-      print 'wire type', wire_type
-
-    # Now we need to get decoders.  They can be memoized in this class.
-    # self.decoder_root = {}
-
-    print decoders
+    decoders = MakeDecoders(self.root, message_name)
     return Decoder(decoders)
 
   def GetEncoder(self, message_name):
     pass
+
+
+def MakeDecoders(root, message_name):
+  """
+  """
+  #pprint(self.root)
+  message_dict = Walk(root, message_name)
+  # For other types
+
+  decoders = {}  # tag bytes -> decoder function
+  for f in message_dict['field']:
+    print f
+
+    field_type = f['type']  # a string
+    wire_type = lookup.FIELD_TYPE_TO_WIRE_TYPE[field_type]  # int
+    tag_bytes = encoder.TagBytes(f['number'], wire_type)
+
+    # get a decoder constructor, e.g. MessageDecoder
+    decoder = lookup.TYPE_TO_DECODER[field_type]
+    is_repeated = (f['label'] == 'LABEL_REPEATED')
+    is_packed = False
+
+    #is_packed = (field_descriptor.has_options and
+    #             field_descriptor.GetOptions().packed)
+
+    # field_descriptor, field_descriptor._default_constructor))
+
+    # key for field_dict
+    key = f['name']
+    new_default = _DefaultValueConstructor(f, root)
+
+    # Now create the decoder by calling the constructor
+    decoders[tag_bytes] = decoder(f['number'], is_repeated, is_packed, key,
+                                  new_default)
+
+    print 'FIELD', f['name']
+    print 'field type', field_type
+    print 'wire type', wire_type
+
+  # Now we need to get decoders.  They can be memoized in this class.
+  # self.decoder_root = {}
+
+  return decoders
 
 
 class Decoder(object):
