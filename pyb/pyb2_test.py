@@ -61,13 +61,19 @@ class PybTest(unittest.TestCase):
     buf = f.read()
     f.close()
 
-    result = decode(buf)
-    pprint(result)
-
-    # TODO: bootstrapping.    We got a dictionary that represents the
+    # Bootstrapping test.    We got a dictionary that represents the
     # address book descriptor.
     # Now instantiate another DescriptorSet, and use that to decode address book
     # protocol buffers.
+
+    # Bug: deoding needs to handle enums.  11 -> TYPE_MESSAGE, etc.
+    address_desc_dict = decode(buf)
+    pprint(address_desc_dict)
+
+    address_desc = pyb.DescriptorSet(address_desc_dict)
+    decode = address_desc.GetDecoder('.tutorial.AddressBook')
+    print decode
+
 
   def testAddressBookDecode(self):
 
