@@ -109,6 +109,7 @@ Decoding loop:
 __author__ = 'Andy Chu'
 
 
+from pprint import pprint
 import sys
 
 try:
@@ -125,6 +126,18 @@ print type_checkers
 class Error(Exception):
   pass
 
+
+def Walk(root, message_name):
+  parts = message_name.split('.')
+  value = root
+  for part in parts:
+    try:
+      value = value[part]
+    except KeyError:
+      raise Error("Expected one of: %r" % value.keys)
+  return value
+
+
 class DescriptorSet(object):
   def __init__(self, desc_dict):
     """
@@ -139,7 +152,9 @@ class DescriptorSet(object):
     message_name: string "package.Type"
                   Could also be "foo.bar.baz.Type"
     """
-    return self.root
+    #pprint(self.root)
+    message_dict = Walk(self.root, message_name)
+    return message_dict
 
     type_index = {}
     IndexTypes(self.desc_dict, type_index)
