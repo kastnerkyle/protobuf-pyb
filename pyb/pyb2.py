@@ -60,7 +60,6 @@ from python_message.py:
 
 Encoding loop:
 
-
   def _IsPresent(item):
     "Given a (FieldDescriptor, value) tuple from _fields, return true if the
     value should be included in the list returned by ListFields()."
@@ -80,6 +79,7 @@ Encoding loop:
   def InternalSerialize(self, write_bytes):
     for field_descriptor, field_value in self.ListFields():
       field_descriptor._encoder(write_bytes, field_value)
+
 
 Decoding loop:
 
@@ -235,6 +235,28 @@ def Walk(root, message_name):
   return value
 
 
+class _FakeMessage(object):
+
+  def _InternalParse(self, buffer, pos, end):
+    pass
+
+
+class _FakeList(list):
+
+  def add(self):
+    """Return a new value of the given type.  Add it to the end of the list"""
+    x = _FakeMessage()
+    self.append(x)
+    return x
+
+
+def _DefaultValueConstructor(field):
+  if field['label'] == 'LABEL_REPEATED':
+    return lambda m: _FakeList()
+  else:
+    return lambda m: field['default_value']
+
+
 class DescriptorSet(object):
 
   def __init__(self, desc_dict):
@@ -273,7 +295,8 @@ class DescriptorSet(object):
       # field_descriptor, field_descriptor._default_constructor))
       key = False
       # TODO: this needs copying semantics
-      new_default = lambda unused_message: f.get('default_value')
+      new_default = _DefaultValueConstructor(f)
+
       decoders[tag_bytes] = decoder(f['number'], is_repeated, is_packed, key,
                                     new_default)
 
@@ -335,17 +358,6 @@ class Message(object):
   _repeated = set()
 
 
-
-def IndexEnums(enums, root):
-  """Given the enum type information, attach it to the Message class."""
-  # Like proto2, we ignore the enum type name.  All enums values live in the
-  # parent namespace.  This prevents the annoyance of long chains of dotted
-  # names.
-  for enum_type in enums:
-    for value in enum_type['value']:
-      root[value['name']] = value['number']
-
-
 def MakeMessageType(type_name, fields):
   """Given the message type information, return a new subclass of Message."""
 
@@ -374,6 +386,16 @@ def MakeMessageType(type_name, fields):
       })
 
   return type(str(type_name), (Message,), class_attrs)
+
+
+def IndexEnums(enums, root):
+  """Given the enum type information, attach it to the Message class."""
+  # Like proto2, we ignore the enum type name.  All enums values live in the
+  # parent namespace.  This prevents the annoyance of long chains of dotted
+  # names.
+  for enum_type in enums:
+    for value in enum_type['value']:
+      root[value['name']] = value['number']
       
 
 def IndexMessages(messages, package, name_list, root, type_index):
