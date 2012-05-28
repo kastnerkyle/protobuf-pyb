@@ -22,6 +22,13 @@ ADDRESS_BOOK_PROTO = 'testdata/addressbook/addressbook.desc.json-from-protoc'
 
 class PybTest(unittest.TestCase):
 
+  def setUp(self):
+    f = open(TEST_PROTO)
+    d = json.load(f)
+    f.close()
+    print d
+    self.trivial = pyb.DescriptorSet(d)
+
   def testDescriptorProto(self):
     d = pyb._LoadDescriptorProto()
 
@@ -68,20 +75,24 @@ class PybTest(unittest.TestCase):
     buf = f.read()
     print decode(buf)
 
-  def testTrivial(self):
+  def testTrivialDecode(self):
     # This isn't bootstrapped -- this is just a small test
-    f = open(TEST_PROTO)
-    d = json.load(f)
-    f.close()
-    print d
-    desc_set = pyb.DescriptorSet(d)
+
     # TODO: Fix this -- if there's no package
-    decode = desc_set.GetDecoder('.Test1')
+    decode = self.trivial.GetDecoder('.Test1')
 
     f = open('test.bin')
     buf = f.read()
     result = decode(buf)
     print 'RESULT', result
+
+  def testTrivialEncode(self):
+    # This isn't bootstrapped -- this is just a small test
+
+    # TODO: Fix this -- if there's no package
+    encode = self.trivial.GetEncoder('.Test1')
+    bytes = encode({'a': 199})
+    print bytes
 
   def testIndexTypes(self):
     f = open(TEST_PROTO)
