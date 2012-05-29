@@ -114,13 +114,30 @@ class _MessageEncodeNode(object):
     self.type_name = type_name
 
     self.encoders = self.encoders_index[type_name]
+    # field name -> sizer
     self.sizers = self.sizers_index[type_name]
 
     self.obj = None
 
   def ByteSize(self):
-    # TODO: Call sizers recursively
-    return self.sizer
+    """Called at runtime in the encoding loop.
+
+    We go through fields and call their sizers.  For a message at the top
+    level, this ends up reading all values in self.obj (the thing we're
+    encoding).
+
+    Oh I see why it has a cache now.  TODO: trace repeated calls of the same
+    sizer.
+
+    """
+    sizers = self.sizers
+
+    size = 0
+    for name, value in self.obj.iteritems():
+      sizer = sizers[name]
+      size += sizer(value)
+
+    return size
 
   def __call__(self, obj):
     """
