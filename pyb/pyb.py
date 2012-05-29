@@ -70,15 +70,16 @@ def _MakeTree(node, encoders_index, sizers_index, type_name):
   if isinstance(node, dict):
     d = {}
     for k, v in node.iteritems():
-      d[k] = _MakeTree(v)
+      d[k] = _MakeTree(v, encoders_index, sizers_index, type_name)
     # get the type name
     node = _MessageEncodeNode(encoders_index, sizers_index, type_name)
     return node
   elif isinstance(node, list):
-    result = []
+    li = []
     for item in node:
-      result.append(_MakeTree(item))
-    return result
+      li.append(_MakeTree(item, encoders_index, sizers_index, type_name))
+    node = _MessageListEncodeNode(li, encoders_index, sizers_index, type_name)
+    return node
   else:
     return node
 
@@ -94,18 +95,28 @@ class _Node(object):
     return self.sizer(self.field_value)
 
 
-class _NodeList(object):
+class _MessageListEncodeNode(object):
+  """
+  Holds the schema?
+  Maybe it should just hold its own
+  """
 
-  def __init__(self, field_value, encoder, sizer):
+  def __init__(self, field_value, encoders_index, sizer, type_name):
     self.field_value = field_value
     self.encoder = encoder
     self.sizer = sizer
 
+  def ByteSize(self):
+    """
+    """
+
   def __iter__(self):
     for value in self.field_value:
       if isinstance(value, dict):
+        print 'yielding', value
         yield _Node(value, self.encoder, self.sizer)
       else:
+        print 'yielding', value
         yield value
 
 
@@ -151,12 +162,17 @@ class _MessageEncodeNode(object):
 
     return size
 
-  def __call__(self, obj):
+  def encode(self, obj):
     """
     Args:
       obj: A dictinoary
+
+    First we transform it to a tree of nodes, with type information.  Then we
+    call the right encoder.
     """
-    self.obj = obj  # this weird structured is forced by encoder.py/decoder.py
+    # this weird structured is forced by encoder.py/decoder.py
+    self.obj = _MakeTree(obj, self.encoders_index, self.sizers_index, self.type_name)
+
     buf = []
     write_bytes = buf.append
     self._InternalSerialize(write_bytes)
@@ -196,7 +212,7 @@ class _MessageEncodeNode(object):
         node = _NodeList(field_value, encoder, sizer)
       else:
         node = field_value
-      print 'ENCODER', encoder
+      print 'Writing', node, 'with ENCODER', encoder
       encoder(write_bytes, node)
 
 
@@ -524,7 +540,9 @@ class DescriptorSet(object):
     PrintSubtree(self.sizers_index)
     print
 
-    return _MessageEncodeNode(self.encoders_index, self.sizers_index, type_name)
+    m = _MessageEncodeNode(self.encoders_index, self.sizers_index, type_name)
+    # Return encoding function
+    return m.encode
 
 
 def IndexEnums(enums, root):
