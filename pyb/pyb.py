@@ -127,11 +127,28 @@ class _MessageEncodeNode(object):
     self.sizers_index = sizers_index
     self.type_name = type_name
 
+    # field name -> encoder
     self.encoders = self.encoders_index[type_name]
     # field name -> sizer
     self.sizers = self.sizers_index[type_name]
 
     self.obj = None
+
+  def encode(self, obj):
+    """
+    Args:
+      obj: A dictinoary
+
+    First we transform it to a tree of nodes, with type information.  Then we
+    call the right encoder.
+    """
+    # this weird structured is forced by encoder.py/decoder.py
+    self.obj = _MakeTree(obj, self.encoders_index, self.sizers_index, self.type_name)
+
+    buf = []
+    write_bytes = buf.append
+    self._InternalSerialize(write_bytes)
+    return ''.join(buf)
 
   def ByteSize(self):
     """Called at runtime in the encoding loop.
@@ -162,22 +179,6 @@ class _MessageEncodeNode(object):
 
     return size
 
-  def encode(self, obj):
-    """
-    Args:
-      obj: A dictinoary
-
-    First we transform it to a tree of nodes, with type information.  Then we
-    call the right encoder.
-    """
-    # this weird structured is forced by encoder.py/decoder.py
-    self.obj = _MakeTree(obj, self.encoders_index, self.sizers_index, self.type_name)
-
-    buf = []
-    write_bytes = buf.append
-    self._InternalSerialize(write_bytes)
-    return ''.join(buf)
-
   def _IsPresent(item):
     """
     Given a (FieldDescriptor, value) tuple from _fields, return true if the
@@ -191,6 +192,28 @@ class _MessageEncodeNode(object):
       return True
 
   def ListFields(self):
+    # Get the message Descriptor dict with
+    #
+    # self.type_index[self.type_name]
+    #
+    # then list all the fields
+    # sort them by number
+    # we need their encoder and sizer too
+    # 
+    # Should _MakeEncoders put these in type_index?
+    # or _MakeTree
+    #
+    # _MakeEncoders -- once per *TYPE*
+    # _MakeTree -- once per *MESSAGE*
+    #
+    # _MakeEncoders should really be _MakeDescriptors
+    # descriptor will have sizer and encoder attached, and it will have an
+    # order?
+    # and it will create a look up from field name -> descriptor
+    #
+    # And then _MakeTree will get the descriptor, and create a
+    # _MessageEncodeNode etc. with it
+    #
     all_fields = [item for item in self._fields.iteritems() if _IsPresent(item)]
     all_fields.sort(key = lambda item: item[0].number)
     return all_fields
@@ -201,6 +224,9 @@ class _MessageEncodeNode(object):
     """
     #fields = self.obj.keys()
     # TODO: sort the fields
+
+    for field_descriptor, field_value in self.ListFields():
+      field_descriptor._encoder(write_bytes, field_value)
 
     for field_name, field_value in self.obj.iteritems():
       print 'FIELD NAME', field_name
@@ -226,8 +252,37 @@ def _MakeEncoders(type_index, encoders_index, sizers_index, type_name):
     - We should put those in encoders_index?
     - We should also populate sizers_index
 
-  """
+  Examples:
+    Dict of message name -> { dict of field names -> encoder / sizer }
 
+    BUT: to encode in order by tag, really what we need is a list of field
+    descriptors?
+   
+  encoders_index
+  .tutorial.AddressBook
+    person        <function EncodeRepeatedField at 0xb7122e2c>
+  .tutorial.Person
+    email         <function EncodeField>
+    id            <function EncodeField>
+    name          <function EncodeField>
+    phone         <function EncodeRepeatedField>
+  .tutorial.Person.PhoneNumber
+    number        <function EncodeField>
+    type          <function EncodeField>
+
+  sizers_index
+  .tutorial.AddressBook
+    person        <function RepeatedFieldSize at 0xb7122e64>
+  .tutorial.Person
+    email         <function FieldSize>
+    id            <function FieldSize>
+    name          <function FieldSize>
+    phone         <function RepeatedFieldSize at 0xb712e064>
+  .tutorial.Person.PhoneNumber
+    number        <function FieldSize>
+    type          <function FieldSize>
+
+  """
   message_dict = type_index[type_name]
   encoders = {}  # field name -> encoder function
   sizers = {}  # field name -> sizer function
@@ -259,7 +314,15 @@ def _MakeEncoders(type_index, encoders_index, sizers_index, type_name):
     is_repeated = (f['label'] == 'LABEL_REPEATED')
     is_packed = False
 
-    # Now create the decoder by calling the constructor
+    # Now create the encoders/sizer by calling the constructor.  Put them in two
+    # indexes { field name -> encoder } and { field name -> sizer }
+    #
+    # NOTE: In proto2, there is a FieldDescriptor for each field.  And we attach
+    # the encoder/sizer there, which is faster to look up.
+    #
+    # There is a Descriptor for the message, which has a _fields dict of
+    # FieldDescriptor -> default value.  That is used in ListFields.
+
     encoders[name] = make_encoder(number, is_repeated, is_packed)
     sizers[name] = make_sizer(number, is_repeated, is_packed)
 
@@ -490,7 +553,7 @@ class DescriptorSet(object):
 
   def __init__(self, desc_dict):
     """
-    desc_dict: Dictinoary representation of the descriptor
+    desc_dict: Dictionary representation of the descriptor
     """
     self.desc_dict = desc_dict
     self.type_index = {}
