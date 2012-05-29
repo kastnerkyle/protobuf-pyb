@@ -322,31 +322,20 @@ def _MakeDescriptors(type_index, descriptor_index, type_name):
 
     # Recurse
     if field_type == 'TYPE_MESSAGE':
-      _SubDescriptor(f, type_index, descriptor_index, is_repeated)
+      type_name = f.get('type_name')
+      assert type_name
+      print "type name", type_name
+
+      # Populate the decoders_index so that the constructor returned below can
+      # access decoders.
+      if type_name not in descriptor_index:
+        # mark visited BEFORE recursive call, preventing infinite recursion
+        descriptor_index[type_name] = True
+        _MakeDescriptors(type_index, descriptor_index, type_name)
 
   # RESULT: populate descriptor index
   descriptor_index[type_name] = descriptors
   return descriptors
-
-
-def _SubDescriptor(field, type_index, descriptor_index, is_repeated):
-  """
-  Helper for _MakeDescriptors.  For the given submessage field, create and
-  populate descriptor_index.
-  """
-  assert field['type'] == 'TYPE_MESSAGE'
-
-  type_name = field.get('type_name')
-  print "type name", type_name
-  assert type_name
-
-  # Populate the decoders_index so that the constructor returned below can
-  # access decoders.
-  if type_name not in descriptor_index:
-    # mark visited BEFORE recursive call, preventing infinite recursion
-    descriptor_index[type_name] = True
-    _MakeDescriptors(type_index, descriptor_index, type_name)
-    #descriptor_index[type_name] = descriptors
 
 
 def _MakeEncoders(type_index, encoders_index, sizers_index, type_name):
