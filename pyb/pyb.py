@@ -62,6 +62,57 @@ def PrintSubtree(subtree, indent=0):
 #
 
 
+class _EncodeNode(object):
+
+  def __init__(self, encoders_index, sizers_index, type_name):
+    self.encoders_index = encoders_index
+    self.sizers_index = sizers_index
+    self.type_name = type_name
+
+    self.encoders = self.encoders_index[type_name]
+
+    self.obj = None
+
+  def __call__(self, obj):
+    """
+    Args:
+      obj: A dictinoary
+    """
+    self.obj = obj  # this weird structured is forced by encoder.py/decoder.py
+    buf = []
+    write_bytes = buf.append
+    self._InternalSerialize(write_bytes)
+    return ''.join(buf)
+
+  def _IsPresent(item):
+    """
+    Given a (FieldDescriptor, value) tuple from _fields, return true if the
+    value should be included in the list returned by ListFields()."""
+
+    if item[0].label == _FieldDescriptor.LABEL_REPEATED:
+      return bool(item[1])
+    elif item[0].cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
+      return item[1]._is_present_in_parent
+    else:
+      return True
+
+  def ListFields(self):
+    all_fields = [item for item in self._fields.iteritems() if _IsPresent(item)]
+    all_fields.sort(key = lambda item: item[0].number)
+    return all_fields
+
+  def _InternalSerialize(self, write_bytes):
+    #fields = self.obj.keys()
+    # TODO: sort the fields
+
+    for field_name, field_value in self.obj.iteritems():
+      print 'FIELD NAME', field_name
+      encoder = self.encoders[field_name]
+      print 'ENCODER', encoder
+      encoder(write_bytes, field_value)
+
+
+
 def _MakeEncoders(type_index, encoders_index, type_name):
 
   message_dict = type_index[type_name]
@@ -338,57 +389,7 @@ class DescriptorSet(object):
     encoders, sizers = _MakeEncoders(self.type_index, self.encoders_index, type_name)
     self.encoders_index[type_name] = encoders
     self.sizers_index[type_name] = sizers
-    return _FakeEncodeMessage(self.encoders_index, self.sizers_index, type_name)
-
-
-class _FakeEncodeMessage(object):
-
-  def __init__(self, encoders_index, sizers_index, type_name):
-    self.encoders_index = encoders_index
-    self.sizers_index = sizers_index
-    self.type_name = type_name
-
-    self.encoders = self.encoders_index[type_name]
-
-    self.obj = None
-
-  def __call__(self, obj):
-    """
-    Args:
-      obj: A dictinoary
-    """
-    self.obj = obj  # this weird structured is forced by encoder.py/decoder.py
-    buf = []
-    write_bytes = buf.append
-    self._InternalSerialize(write_bytes)
-    return ''.join(buf)
-
-  def _IsPresent(item):
-    """
-    Given a (FieldDescriptor, value) tuple from _fields, return true if the
-    value should be included in the list returned by ListFields()."""
-
-    if item[0].label == _FieldDescriptor.LABEL_REPEATED:
-      return bool(item[1])
-    elif item[0].cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
-      return item[1]._is_present_in_parent
-    else:
-      return True
-
-  def ListFields(self):
-    all_fields = [item for item in self._fields.iteritems() if _IsPresent(item)]
-    all_fields.sort(key = lambda item: item[0].number)
-    return all_fields
-
-  def _InternalSerialize(self, write_bytes):
-    #fields = self.obj.keys()
-    # TODO: sort the fields
-
-    for field_name, field_value in self.obj.iteritems():
-      print 'FIELD NAME', field_name
-      encoder = self.encoders[field_name]
-      print 'ENCODER', encoder
-      encoder(write_bytes, field_value)
+    return _EncodeNode(self.encoders_index, self.sizers_index, type_name)
 
 
 def IndexEnums(enums, root):
