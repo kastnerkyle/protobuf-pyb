@@ -63,22 +63,22 @@ def PrintSubtree(subtree, indent=0):
 # ENCODING
 #
 
-def _MakeTree(node, encoders_index, sizers_index, type_name):
+def _MakeTree(node, descriptor_index, type_name):
   """
   Take a simple dictionary and create a _MessageEncodeNode tree.
   """
   if isinstance(node, dict):
     d = {}
     for k, v in node.iteritems():
-      d[k] = _MakeTree(v, encoders_index, sizers_index, type_name)
+      d[k] = _MakeTree(v, descriptor_index, type_name)
     # get the type name
-    node = _MessageEncodeNode(encoders_index, sizers_index, type_name)
+    node = _MessageEncodeNode(descriptor_index, type_name)
     return node
   elif isinstance(node, list):
     li = []
     for item in node:
-      li.append(_MakeTree(item, encoders_index, sizers_index, type_name))
-    node = _MessageListEncodeNode(li, encoders_index, sizers_index, type_name)
+      li.append(_MakeTree(item, descriptor_index, type_name))
+    node = _MessageListEncodeNode(li, descriptor_index, type_name)
     return node
   else:
     return node
@@ -101,10 +101,11 @@ class _MessageListEncodeNode(object):
   Maybe it should just hold its own
   """
 
-  def __init__(self, field_value, encoders_index, sizer, type_name):
+  def __init__(self, field_value, descriptor_index, type_name):
     self.field_value = field_value
-    self.encoder = encoder
-    self.sizer = sizer
+    self.descriptor_index = descriptor_index
+    self.type_name = type_name
+    self.descriptor = descriptor_index[type_name]
 
   def ByteSize(self):
     """
@@ -114,23 +115,29 @@ class _MessageListEncodeNode(object):
     for value in self.field_value:
       if isinstance(value, dict):
         print 'yielding', value
-        yield _Node(value, self.encoder, self.sizer)
+        # _Node with a descriptor?
+        yield _Node(value, self.descriptor)
       else:
         print 'yielding', value
         yield value
 
 
 class _MessageEncodeNode(object):
+  """
+  First we _MakeDescriptors
+  Then we pass the descriptor_index to this object, which has an encode method
+  """
 
-  def __init__(self, encoders_index, sizers_index, type_name):
-    self.encoders_index = encoders_index
-    self.sizers_index = sizers_index
+  def __init__(self, descriptor_index, type_name):
+    self.descriptor_index = descriptor_index
+    #self.encoders_index = encoders_index
+    #self.sizers_index = sizers_index
     self.type_name = type_name
 
     # field name -> encoder
-    self.encoders = self.encoders_index[type_name]
+    #self.encoders = self.encoders_index[type_name]
     # field name -> sizer
-    self.sizers = self.sizers_index[type_name]
+    #self.sizers = self.sizers_index[type_name]
 
     self.obj = None
 
@@ -143,7 +150,7 @@ class _MessageEncodeNode(object):
     call the right encoder.
     """
     # this weird structured is forced by encoder.py/decoder.py
-    self.obj = _MakeTree(obj, self.encoders_index, self.sizers_index, self.type_name)
+    self.obj = _MakeTree(obj, self.descriptor_index, self.type_name)
 
     buf = []
     write_bytes = buf.append
@@ -240,6 +247,92 @@ class _MessageEncodeNode(object):
         node = field_value
       print 'Writing', node, 'with ENCODER', encoder
       encoder(write_bytes, node)
+
+
+class Descriptor(object):
+  """
+  Describes a message, or a field?
+
+  descriptor_index is ( field name -> Descriptor Instance)
+  """
+  def __init__(self, encoder, sizer):
+    self.encoder = encoder 
+    self.sizer = sizer 
+    # fields are pointers to other descriptors?
+    # field name -> descriptor?
+
+def _MakeDescriptors(type_index, descriptor_index, type_name):
+  """
+  """
+  message_dict = type_index[type_name]
+  descriptors = {}  # field name -> Descriptor instance
+
+  fields = message_dict.get('field')
+  if not fields:
+    print message_dict
+    raise Error('No fields for %s' % type_name)
+
+  for f in fields:
+    field_type = f['type']  # a string
+    number = f['number']  # a string
+    name = f['name']  # a string
+    wire_type = lookup.FIELD_TYPE_TO_WIRE_TYPE[field_type]  # int
+
+    print '---------'
+    print 'encoders FIELD name', f['name']
+    print 'encoders field type', field_type
+    print 'encoders wire type', wire_type
+
+    #tag_bytes = encoder.TagBytes(number, wire_type)
+
+    # get a encoder constructor, e.g. MessageENcoder
+    make_encoder = lookup.TYPE_TO_ENCODER[field_type]
+    print 'MAKE_ENCODER', make_encoder
+    make_sizer = lookup.TYPE_TO_SIZER[field_type]
+    print 'MAKE_SIZE', make_sizer
+
+    is_repeated = (f['label'] == 'LABEL_REPEATED')
+    is_packed = False
+
+    # Now create the encoders/sizer by calling the constructor.  Put them in two
+    # indexes { field name -> encoder } and { field name -> sizer }
+    #
+    # NOTE: In proto2, there is a FieldDescriptor for each field.  And we attach
+    # the encoder/sizer there, which is faster to look up.
+    #
+    # There is a Descriptor for the message, which has a _fields dict of
+    # FieldDescriptor -> default value.  That is used in ListFields.
+
+    encoder = make_encoder(number, is_repeated, is_packed)
+    sizer = make_sizer(number, is_repeated, is_packed)
+    desc = Descriptor(encoder, sizer)
+    descriptors[name] = desc
+
+    # Recurse
+    if field_type == 'TYPE_MESSAGE':
+      _SubDescriptor(f, type_index, descriptor_index, is_repeated)
+
+  return descriptors
+
+
+def _SubDescriptor(field, type_index, descriptor_index, is_repeated):
+  """
+  Helper for _MakeDescriptors.  For the given submessage field, create and
+  populate descriptor_index.
+  """
+  assert field['type'] == 'TYPE_MESSAGE'
+
+  type_name = field.get('type_name')
+  print "type name", type_name
+  assert type_name
+
+  # Populate the decoders_index so that the constructor returned below can
+  # access decoders.
+  if type_name not in descriptor_index:
+    # mark visited BEFORE recursive call, preventing infinite recursion
+    descriptor_index[type_name] = True
+    descriptors = _MakeDescriptors(type_index, descriptor_index, type_name)
+    descriptor_index[type_name] = descriptors
 
 
 def _MakeEncoders(type_index, encoders_index, sizers_index, type_name):
@@ -562,6 +655,8 @@ class DescriptorSet(object):
     # cache of encoders and decoders
     # { ".package.Type" : { "tag bytes" -> <decode function> } ... }
     self.decoders_index = {}
+    self.descriptor_index = {}
+
     self.encoders_index = {}
     self.sizers_index = {}
 
@@ -590,22 +685,34 @@ class DescriptorSet(object):
     return m.decode
 
   def GetEncoder(self, type_name):
-    encoders, sizers = _MakeEncoders(
-        self.type_index, self.encoders_index, self.sizers_index, type_name)
-    self.encoders_index[type_name] = encoders
-    self.sizers_index[type_name] = sizers
+    # Populates self.descriptor_index
+    descriptors = _MakeDescriptors(self.type_index, self.descriptor_index, type_name)
+    self.descriptor_index[type_name] = descriptors
 
-    print
-    print 'ENCODERS'
-    PrintSubtree(self.encoders_index)
-    print
-    print 'SIZERS'
-    PrintSubtree(self.sizers_index)
+    print 'DESCRIPTORS'
+    PrintSubtree(self.descriptor_index)
     print
 
-    m = _MessageEncodeNode(self.encoders_index, self.sizers_index, type_name)
+    m = _MessageEncodeNode(self.descriptor_index, type_name)
     # Return encoding function
     return m.encode
+
+    #encoders, sizers = _MakeEncoders(
+    #    self.type_index, self.encoders_index, self.sizers_index, type_name)
+    #self.encoders_index[type_name] = encoders
+    #self.sizers_index[type_name] = sizers
+
+    #print
+    #print 'ENCODERS'
+    #PrintSubtree(self.encoders_index)
+    #print
+    #print 'SIZERS'
+    #PrintSubtree(self.sizers_index)
+    #print
+
+    #m = _MessageEncodeNode(self.encoders_index, self.sizers_index, type_name)
+    # Return encoding function
+    #return m.encode
 
 
 def IndexEnums(enums, root):
