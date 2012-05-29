@@ -200,7 +200,7 @@ class _MessageEncodeNode(object):
       encoder(write_bytes, node)
 
 
-def _MakeEncoders(type_index, encoders_index, type_name):
+def _MakeEncoders(type_index, encoders_index, sizers_index, type_name):
   """
   Given a type name, look up all the dependent types in the type_index and
   compute encoders for them.
@@ -232,13 +232,13 @@ def _MakeEncoders(type_index, encoders_index, type_name):
     print 'encoders field type', field_type
     print 'encoders wire type', wire_type
 
-
     #tag_bytes = encoder.TagBytes(number, wire_type)
 
     # get a encoder constructor, e.g. MessageENcoder
     make_encoder = lookup.TYPE_TO_ENCODER[field_type]
-    print 'MAKE', make_encoder
+    print 'MAKE_ENCODER', make_encoder
     make_sizer = lookup.TYPE_TO_SIZER[field_type]
+    print 'MAKE_SIZE', make_sizer
 
     is_repeated = (f['label'] == 'LABEL_REPEATED')
     is_packed = False
@@ -246,7 +246,34 @@ def _MakeEncoders(type_index, encoders_index, type_name):
     # Now create the decoder by calling the constructor
     encoders[name] = make_encoder(number, is_repeated, is_packed)
     sizers[name] = make_sizer(number, is_repeated, is_packed)
+
+    # Recurse
+    if field_type == 'TYPE_MESSAGE':
+      _SubMessage(f, type_index, encoders_index, sizers_index, is_repeated)
+
   return encoders, sizers
+
+
+def _SubMessage(field, type_index, encoders_index, sizers_index, is_repeated):
+  """
+  Helper for _MakeEncoders.  For the given submessage field, create and populate
+  encoders/sizers.
+  """
+  assert field['type'] == 'TYPE_MESSAGE'
+
+  type_name = field.get('type_name')
+  print "type name", type_name
+  assert type_name
+
+  # Populate the decoders_index so that the constructor returned below can
+  # access decoders.
+  if type_name not in encoders_index:
+    # mark visited BEFORE recursive call, preventing infinite recursion
+    encoders_index[type_name] = True
+    encoders, sizers = _MakeEncoders(type_index, encoders_index, sizers_index, 
+                                     type_name)
+    encoders_index[type_name] = encoders
+    sizers_index[type_name] = sizers
 
 
 #
@@ -484,7 +511,8 @@ class DescriptorSet(object):
     return m.decode
 
   def GetEncoder(self, type_name):
-    encoders, sizers = _MakeEncoders(self.type_index, self.encoders_index, type_name)
+    encoders, sizers = _MakeEncoders(
+        self.type_index, self.encoders_index, self.sizers_index, type_name)
     self.encoders_index[type_name] = encoders
     self.sizers_index[type_name] = sizers
 
