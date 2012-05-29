@@ -130,6 +130,15 @@ class _MessageEncodeNode(object):
     sizer.
 
     """
+    # Here, we need to iterate over nodes to get the right type names.
+    # And the right sizers
+    # Shit I think this needs to eventually call ByteSize() on other nodes
+    # like the _InternalSerialize needs to call _InternalSerialize on other
+    # nodes!
+    # ARGH!
+
+    # self.obj needs to be the TREE
+
     sizers = self.sizers
 
     size = 0
@@ -189,6 +198,16 @@ class _MessageEncodeNode(object):
 
 
 def _MakeEncoders(type_index, encoders_index, type_name):
+  """
+  Given a type name, look up all the dependent types in the type_index and
+  compute encoders for them.
+  
+
+  TODO:
+    - We should put those in encoders_index?
+    - We should also populate sizers_index
+
+  """
 
   message_dict = type_index[type_name]
   encoders = {}  # field name -> encoder function

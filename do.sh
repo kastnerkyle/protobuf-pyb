@@ -102,10 +102,11 @@ bootstrap() {
 }
 
 proto2_demo() {
+  build-py testdata/addressbook/addressbook.proto
   # To run with hermetic version:
   # Have to do python -S and add the tar dir
   export PYTHONPATH=py/testdata/addressbook:py #:/home/andy/src/protobuf-2.4.1/python
-  ./proto2_demo.py "$@"
+  scratch/proto2_demo.py "$@"
 }
 
 "$@"

@@ -45,12 +45,13 @@ def main(argv):
   bytes = t.SerializeToString()
   print 'BYTES', repr(bytes)
 
+  print 't.s', type(t.s)
   for element in t.s:
     print type(element)
-    print dir(element)
+    #print dir(element)
     print element
 
-  pprint(sys.modules)
+  #pprint(sys.modules)
 
   return 0
 
