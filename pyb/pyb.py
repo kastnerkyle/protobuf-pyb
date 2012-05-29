@@ -324,6 +324,8 @@ def _MakeDescriptors(type_index, descriptor_index, type_name):
     if field_type == 'TYPE_MESSAGE':
       _SubDescriptor(f, type_index, descriptor_index, is_repeated)
 
+  # RESULT: populate descriptor index
+  descriptor_index[type_name] = descriptors
   return descriptors
 
 
@@ -343,8 +345,8 @@ def _SubDescriptor(field, type_index, descriptor_index, is_repeated):
   if type_name not in descriptor_index:
     # mark visited BEFORE recursive call, preventing infinite recursion
     descriptor_index[type_name] = True
-    descriptors = _MakeDescriptors(type_index, descriptor_index, type_name)
-    descriptor_index[type_name] = descriptors
+    _MakeDescriptors(type_index, descriptor_index, type_name)
+    #descriptor_index[type_name] = descriptors
 
 
 def _MakeEncoders(type_index, encoders_index, sizers_index, type_name):
@@ -698,8 +700,7 @@ class DescriptorSet(object):
 
   def GetEncoder(self, type_name):
     # Populates self.descriptor_index
-    descriptors = _MakeDescriptors(self.type_index, self.descriptor_index, type_name)
-    self.descriptor_index[type_name] = descriptors
+    _MakeDescriptors(self.type_index, self.descriptor_index, type_name)
 
     print 'DESCRIPTORS'
     PrintSubtree(self.descriptor_index)

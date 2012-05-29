@@ -37,10 +37,13 @@ class PybTest(unittest.TestCase):
     f.close()
     self.address_book = pyb.DescriptorSet(d)
 
-  def testDescriptorProto(self):
     d = pyb._LoadDescriptorProto()
 
-    desc_set = pyb.DescriptorSet(d)
+    self.descriptor_proto = pyb.DescriptorSet(d)
+
+  def testDescriptorProto(self):
+    desc_set = self.descriptor_proto
+
     decode = desc_set.GetDecoder('.proto2.EnumOptions')
     pprint(decode)
 
@@ -75,7 +78,6 @@ class PybTest(unittest.TestCase):
     address_desc = pyb.DescriptorSet(address_desc_dict)
     decode = address_desc.GetDecoder('.tutorial.AddressBook')
     print decode
-
 
   def testAddressBookDecode(self):
 
@@ -141,6 +143,24 @@ class PybTest(unittest.TestCase):
     pyb.PrintSubtree(root)
     pprint(type_index)
 
+  def testMakeDescriptors(self):
+    ds = self.address_book  # DescriptorSet
+
+    descriptors = pyb._MakeDescriptors(
+        ds.type_index, ds.descriptor_index, '.tutorial.AddressBook')
+    print descriptors
+
+    print 'DESCRIPTORS'
+    pyb.PrintSubtree(ds.descriptor_index)
+    print
+
+    ds = self.descriptor_proto
+    descriptors = pyb._MakeDescriptors(
+        ds.type_index, ds.descriptor_index, '.proto2.FileDescriptorSet')
+
+    print 'DESCRIPTORS'
+    pyb.PrintSubtree(ds.descriptor_index)
+    print
 
 
 if __name__ == '__main__':
