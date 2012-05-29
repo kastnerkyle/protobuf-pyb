@@ -63,25 +63,46 @@ def PrintSubtree(subtree, indent=0):
 # ENCODING
 #
 
-class _Node(object):
 
-  def __init__(self, data):
+class _BaseValue(object):
+
+  def __str__(self):
+    return '<Value %s %s>' % (self.value, self.descriptors)
+
+
+class _ValueNode(_BaseValue):
+
+  def __init__(self, value, descriptors):
     """
-    data: field name -> (node or primitive)
     """
-    self.data = data
+    self.value = value
+    self.descriptors = descriptors
 
   def ByteSize(self):
     return self.sizer(self.field_value)
 
 
-class _RepeatedNode(object):
+class _RepeatedValueNode(_BaseValue):
 
-  def __init__(self, data):
+  def __init__(self, value, descriptors):
     """
-    data: field name -> (node or primitive)
     """
-    self.data = data
+    self.value = value
+    self.descriptors = descriptors
+
+
+class _Atom(_BaseValue):
+
+  def __init__(self, value, descriptors):
+    """
+    """
+    self.value = value
+    self.descriptors = descriptors
+
+
+def PrintValueTree(root):
+  if isinstance(root, _ValueNode):
+    pass
 
 
 def _MakeTree(node, descriptors):
@@ -98,18 +119,23 @@ def _MakeTree(node, descriptors):
   if isinstance(node, dict):
     d = {}
     for name, value in node.iteritems():
-      field_descriptor = descriptors[name].fields
-      d[name] = _MakeTree(value, field_descriptor)
+      print 'NAME', name, 'VALUE', value
+      field_descriptors = descriptors[name].fields
+      print 'FIELD_DSECRIPTORS', field_descriptors
+      d[name] = _MakeTree(value, field_descriptors)
+
+    pprint(d)
     # get the type name
-    node = _Node(d)
+    node = _ValueNode(d, descriptors)
     return node
   elif isinstance(node, list):
     li = []
     for item in node:
       li.append(_MakeTree(item, descriptors))
-    node = _RepeatedNode(li)
+    node = _RepeatedValueNode(li, descriptors)
     return node
   else:
+    # Field descriptor?
     return node
 
 
@@ -285,6 +311,9 @@ class Descriptor(object):
     return '<Descriptor %s %s>' % (
         self.encoder.__name__,
         self.sizer.__name__)
+
+  def __repr__(self):
+    return str(self)
 
 
 def _MakeDescriptors(type_index, descriptor_index, type_name):

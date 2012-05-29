@@ -173,6 +173,30 @@ class PybTest(unittest.TestCase):
     pyb.PrintSubtree(ds.descriptor_index)
     print
 
+  def testMakeTree(self):
+    ds = self.address_book  # DescriptorSet
+    descriptors = pyb._MakeDescriptors(
+        ds.type_index, ds.descriptor_index, '.tutorial.AddressBook')
+    t = pyb._MakeTree({'person': [{'name': 'Jill'}]}, descriptors)
+
+    print '---'
+    print t
+    print '---'
+    print 'person'
+    print t.value['person']
+    print
+    print t.descriptors['person']
+    print '---'
+    print 'person[0]'
+    print t.value['person'].value[0]
+    print
+    print t.value['person'].descriptors
+    print '---'
+    print "person[0]['name']"
+    print t.value['person'].value[0].value['name']
+    print
+    print t.value['person'].value[0].descriptors
+
 
 if __name__ == '__main__':
   unittest.main()
