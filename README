@@ -64,3 +64,9 @@ raw_decode.py -- Decode without a schema.  Move to bin/?
 
 pyb_tool.py -- Command line tool.  Maybe move to bin/
 
+
+TODO
+----
+
+- encoding of messages
+- enum decoding and encoding
