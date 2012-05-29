@@ -48,12 +48,15 @@ class Error(Exception):
 
 
 def PrintSubtree(subtree, indent=0):
-  if not isinstance(subtree, dict):
-    return
   names = sorted(subtree)
   for name in names:
-    print ' ' * indent + name
-    PrintSubtree(subtree[name], indent+2)
+    value = subtree[name]
+    print ' ' * indent + name,
+    if isinstance(value, dict):
+      print
+      PrintSubtree(value, indent+2)
+    else:
+      print '\t' + str(value)
 
 
 #
@@ -232,8 +235,9 @@ def _MakeEncoders(type_index, encoders_index, type_name):
 
     #tag_bytes = encoder.TagBytes(number, wire_type)
 
-    # get a decoder constructor, e.g. MessageDecoder
+    # get a encoder constructor, e.g. MessageENcoder
     make_encoder = lookup.TYPE_TO_ENCODER[field_type]
+    print 'MAKE', make_encoder
     make_sizer = lookup.TYPE_TO_SIZER[field_type]
 
     is_repeated = (f['label'] == 'LABEL_REPEATED')

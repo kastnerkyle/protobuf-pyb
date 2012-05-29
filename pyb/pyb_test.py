@@ -88,10 +88,12 @@ class PybTest(unittest.TestCase):
     print 'RESULT'
     pprint(result)
 
-  def testAddressBookEncode(self):
+  def testAddressBookEncodePerson(self):
     encode = self.address_book.GetEncoder('.tutorial.Person')
     bytes = encode({'name': 'Jill'})
     print 'BYTES', repr(bytes)
+
+  def testAddressBookEncode(self):
 
     encode = self.address_book.GetEncoder('.tutorial.AddressBook')
 
