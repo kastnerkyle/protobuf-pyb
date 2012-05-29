@@ -101,3 +101,53 @@ def _AttachFieldHelpers(cls, field_descriptor):
     # packed values regardless of the field's options.
     AddDecoder(wire_format.WIRETYPE_LENGTH_DELIMITED, True)
 
+
+# NOTES: At runtime, ByteSize for a message calls all the sizers recursively.
+
+def _AddByteSizeMethod(message_descriptor, cls):
+  """Helper for _AddMessageMethods()."""
+
+  def ByteSize(self):
+    if not self._cached_byte_size_dirty:
+      return self._cached_byte_size
+
+    size = 0
+    for field_descriptor, field_value in self.ListFields():
+      size += field_descriptor._sizer(field_value)
+
+    self._cached_byte_size = size
+    self._cached_byte_size_dirty = False
+    self._listener_for_children.dirty = False
+    return size
+
+  cls.ByteSize = ByteSize
+
+
+def _AddSerializeToStringMethod(message_descriptor, cls):
+  """Helper for _AddMessageMethods()."""
+
+  def SerializeToString(self):
+    # Check if the message has all of its required fields set.
+    errors = []
+    if not self.IsInitialized():
+      raise message_mod.EncodeError(
+          'Message is missing required fields: ' +
+          ','.join(self.FindInitializationErrors()))
+    return self.SerializePartialToString()
+  cls.SerializeToString = SerializeToString
+
+
+def _AddSerializePartialToStringMethod(message_descriptor, cls):
+  """Helper for _AddMessageMethods()."""
+
+  def SerializePartialToString(self):
+    out = StringIO()
+    self._InternalSerialize(out.write)
+    return out.getvalue()
+  cls.SerializePartialToString = SerializePartialToString
+
+  def InternalSerialize(self, write_bytes):
+    for field_descriptor, field_value in self.ListFields():
+      field_descriptor._encoder(write_bytes, field_value)
+  cls._InternalSerialize = InternalSerialize
+

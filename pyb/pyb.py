@@ -119,6 +119,7 @@ class _MessageEncodeNode(object):
     self.obj = None
 
   def ByteSize(self):
+    # TODO: Call sizers recursively
     return self.sizer
 
   def __call__(self, obj):
