@@ -75,11 +75,20 @@ class _Node(object):
     return self.sizer(self.field_value)
 
 
-def _MakeTree(node, descriptor):
+class _RepeatedNode(object):
+
+  def __init__(self, data):
+    """
+    data: field name -> (node or primitive)
+    """
+    self.data = data
+
+
+def _MakeTree(node, descriptors):
   """
   Args:
     node: root object
-    descriptor: Descriptor() instance
+    descriptor: dict of Descriptor() instances
 
   Returns:
     Tree of _Node objects
@@ -89,16 +98,16 @@ def _MakeTree(node, descriptor):
   if isinstance(node, dict):
     d = {}
     for name, value in node.iteritems():
-      field_descriptor = descriptor.fields[name]
-      d[name] = _MakeTree(v, field_descriptor)
+      field_descriptor = descriptors[name].fields
+      d[name] = _MakeTree(value, field_descriptor)
     # get the type name
     node = _Node(d)
     return node
   elif isinstance(node, list):
     li = []
     for item in node:
-      li.append(_MakeTree(item, descriptor))
-    node = _MessageListEncodeNode(li, descriptor_index, type_name)
+      li.append(_MakeTree(item, descriptors))
+    node = _RepeatedNode(li)
     return node
   else:
     return node
@@ -160,7 +169,7 @@ class _DescriptorNode(object):
     """
     # this weird structured is forced by encoder.py/decoder.py
     descriptors = self.descriptor_index[self.type_name]
-    self.obj = _MakeTree(obj, descriptor)
+    self.obj = _MakeTree(obj, descriptors)
 
     buf = []
     write_bytes = buf.append
@@ -340,10 +349,11 @@ def _MakeDescriptors(type_index, descriptor_index, type_name):
     desc = Descriptor(encoder, sizer, sub_descriptors)
     descriptors[name] = desc
 
+
+  # NOTE: We can't create a root descriptor here.  Because an encoder needs a
+  # TAG number, and the root has no tag.
+
   # RESULT: populate descriptor index
-
-  # TODO: Create a descriptor here?  How to create an encoder and a sizer?
-
   descriptor_index[type_name] = descriptors
   return descriptors
 
