@@ -97,7 +97,7 @@ def _MakeTree(node, descriptor):
   elif isinstance(node, list):
     li = []
     for item in node:
-      li.append(_MakeTree(item, descriptor_index, type_name))
+      li.append(_MakeTree(item, descriptor))
     node = _MessageListEncodeNode(li, descriptor_index, type_name)
     return node
   else:
@@ -159,7 +159,7 @@ class _DescriptorNode(object):
     call the right encoder.
     """
     # this weird structured is forced by encoder.py/decoder.py
-    descriptor = self.descriptor_index[self.type_name]
+    descriptors = self.descriptor_index[self.type_name]
     self.obj = _MakeTree(obj, descriptor)
 
     buf = []
@@ -272,6 +272,11 @@ class Descriptor(object):
     # fields are pointers to other descriptors?
     # field name -> descriptor?
 
+  def __str__(self):
+    return '<Descriptor %s %s>' % (
+        self.encoder.__name__,
+        self.sizer.__name__)
+
 
 def _MakeDescriptors(type_index, descriptor_index, type_name):
   """
@@ -336,6 +341,9 @@ def _MakeDescriptors(type_index, descriptor_index, type_name):
     descriptors[name] = desc
 
   # RESULT: populate descriptor index
+
+  # TODO: Create a descriptor here?  How to create an encoder and a sizer?
+
   descriptor_index[type_name] = descriptors
   return descriptors
 
