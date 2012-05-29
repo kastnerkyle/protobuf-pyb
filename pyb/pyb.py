@@ -25,7 +25,6 @@ Dynamic bootstrapping
 getting a dictinoary
 3. Create a pyb.DescriptorSet from that
 4. Decode and encode regular messages using the descriptor
-
 """
 
 __author__ = 'Andy Chu'
@@ -61,6 +60,51 @@ def PrintSubtree(subtree, indent=0):
 # ENCODING
 #
 
+def _MakeTree(node, encoders_index, sizers_index, type_name):
+  """
+  Take a simple dictionary and create a _MessageEncodeNode tree.
+  """
+  if isinstance(node, dict):
+    d = {}
+    for k, v in node.iteritems():
+      d[k] = _MakeTree(v)
+    # get the type name
+    node = _MessageEncodeNode(encoders_index, sizers_index, type_name)
+    return node
+  elif isinstance(node, list):
+    result = []
+    for item in node:
+      result.append(_MakeTree(item))
+    return result
+  else:
+    return node
+
+
+class _Node(object):
+
+  def __init__(self, field_value, encoder, sizer):
+    self.field_value = field_value
+    self.encoder = encoder
+    self.sizer = sizer
+
+  def ByteSize(self):
+    return self.sizer(self.field_value)
+
+
+class _NodeList(object):
+
+  def __init__(self, field_value, encoder, sizer):
+    self.field_value = field_value
+    self.encoder = encoder
+    self.sizer = sizer
+
+  def __iter__(self):
+    for value in self.field_value:
+      if isinstance(value, dict):
+        yield _Node(value, self.encoder, self.sizer)
+      else:
+        yield value
+
 
 class _MessageEncodeNode(object):
 
@@ -70,8 +114,12 @@ class _MessageEncodeNode(object):
     self.type_name = type_name
 
     self.encoders = self.encoders_index[type_name]
+    self.sizers = self.sizers_index[type_name]
 
     self.obj = None
+
+  def ByteSize(self):
+    return self.sizer
 
   def __call__(self, obj):
     """
@@ -102,14 +150,24 @@ class _MessageEncodeNode(object):
     return all_fields
 
   def _InternalSerialize(self, write_bytes):
+    """
+    Takes self.obj and encodes it to the write_bytes callable.
+    """
     #fields = self.obj.keys()
     # TODO: sort the fields
 
     for field_name, field_value in self.obj.iteritems():
       print 'FIELD NAME', field_name
       encoder = self.encoders[field_name]
+      sizer = self.sizers[field_name]
+      if isinstance(field_value, dict):
+        node = _Node(field_value, encoder, sizer)
+      elif isinstance(field_value, list):
+        node = _NodeList(field_value, encoder, sizer)
+      else:
+        node = field_value
       print 'ENCODER', encoder
-      encoder(write_bytes, field_value)
+      encoder(write_bytes, node)
 
 
 def _MakeEncoders(type_index, encoders_index, type_name):
@@ -296,7 +354,7 @@ class _MessageNode(object):
 
 def _MakeDict(node):
   """
-  message
+  Take a _MessageNode tree and create a simple dictionary.
   """
   if isinstance(node, _MessageNode):
     result = {}
@@ -388,6 +446,15 @@ class DescriptorSet(object):
     encoders, sizers = _MakeEncoders(self.type_index, self.encoders_index, type_name)
     self.encoders_index[type_name] = encoders
     self.sizers_index[type_name] = sizers
+
+    print
+    print 'ENCODERS'
+    PrintSubtree(self.encoders_index)
+    print
+    print 'SIZERS'
+    PrintSubtree(self.sizers_index)
+    print
+
     return _MessageEncodeNode(self.encoders_index, self.sizers_index, type_name)
 
 
