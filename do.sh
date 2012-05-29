@@ -9,11 +9,10 @@ build-cpp() {
   tree cpp
 }
 
-# damnit, this fails on ubuntu
 build-py() {
   set -o errexit
   mkdir -p py
-  protoc --py_out py "$@"
+  protoc --python_out py "$@"
   tree py
 }
 
