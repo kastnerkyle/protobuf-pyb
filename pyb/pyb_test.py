@@ -150,10 +150,21 @@ class PybTest(unittest.TestCase):
         ds.type_index, ds.descriptor_index, '.tutorial.AddressBook')
     print descriptors
 
+    # Make sure we have all 3
+    self.assertEqual(
+        set(['.tutorial.AddressBook', 
+          '.tutorial.Person',
+          '.tutorial.Person.PhoneNumber']),
+        set(ds.descriptor_index.keys()))
+
     print 'DESCRIPTORS'
     pyb.PrintSubtree(ds.descriptor_index)
     print
 
+
+    print ds.descriptor_index['.tutorial.AddressBook']['person'].fields
+
+    return
     ds = self.descriptor_proto
     descriptors = pyb._MakeDescriptors(
         ds.type_index, ds.descriptor_index, '.proto2.FileDescriptorSet')

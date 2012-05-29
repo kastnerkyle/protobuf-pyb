@@ -265,10 +265,10 @@ class Descriptor(object):
 
   descriptor_index is ( field name -> Descriptor Instance)
   """
-  def __init__(self, encoder, sizer):
+  def __init__(self, encoder, sizer, fields):
     self.encoder = encoder 
     self.sizer = sizer 
-    self.fields = {}
+    self.fields = fields
     # fields are pointers to other descriptors?
     # field name -> descriptor?
 
@@ -306,6 +306,21 @@ def _MakeDescriptors(type_index, descriptor_index, type_name):
     is_repeated = (f['label'] == 'LABEL_REPEATED')
     is_packed = False
 
+    # Recurse
+    sub_descriptors = {}
+    if field_type == 'TYPE_MESSAGE':
+      sub_type_name = f.get('type_name')
+      assert sub_type_name
+      print "type name", sub_type_name
+
+      # Populate the decoders_index so that the constructor returned below can
+      # access decoders.
+      if sub_type_name not in descriptor_index:
+        # mark visited BEFORE recursive call, preventing infinite recursion
+        descriptor_index[sub_type_name] = True
+        sub_descriptors = _MakeDescriptors(type_index, descriptor_index,
+                                           sub_type_name)
+
     # Now create the encoders/sizer by calling the constructor.  Put them in two
     # indexes { field name -> encoder } and { field name -> sizer }
     #
@@ -317,21 +332,8 @@ def _MakeDescriptors(type_index, descriptor_index, type_name):
 
     encoder = make_encoder(number, is_repeated, is_packed)
     sizer = make_sizer(number, is_repeated, is_packed)
-    desc = Descriptor(encoder, sizer)
+    desc = Descriptor(encoder, sizer, sub_descriptors)
     descriptors[name] = desc
-
-    # Recurse
-    if field_type == 'TYPE_MESSAGE':
-      type_name = f.get('type_name')
-      assert type_name
-      print "type name", type_name
-
-      # Populate the decoders_index so that the constructor returned below can
-      # access decoders.
-      if type_name not in descriptor_index:
-        # mark visited BEFORE recursive call, preventing infinite recursion
-        descriptor_index[type_name] = True
-        _MakeDescriptors(type_index, descriptor_index, type_name)
 
   # RESULT: populate descriptor index
   descriptor_index[type_name] = descriptors
