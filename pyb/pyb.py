@@ -63,16 +63,36 @@ def PrintSubtree(subtree, indent=0):
 # ENCODING
 #
 
-def _MakeTree(node, descriptor_index, type_name):
+class _Node(object):
+
+  def __init__(self, data):
+    """
+    data: field name -> (node or primitive)
+    """
+    self.data = data
+
+  def ByteSize(self):
+    return self.sizer(self.field_value)
+
+
+def _MakeTree(node, descriptor):
   """
-  Take a simple dictionary and create a _MessageEncodeNode tree.
+  Args:
+    node: root object
+    descriptor: Descriptor() instance
+
+  Returns:
+    Tree of _Node objects
+
+  Take a simple dictionary and create a _DescriptorNode tree.
   """
   if isinstance(node, dict):
     d = {}
-    for k, v in node.iteritems():
-      d[k] = _MakeTree(v, descriptor_index, type_name)
+    for name, value in node.iteritems():
+      field_descriptor = descriptor.fields[name]
+      d[name] = _MakeTree(v, field_descriptor)
     # get the type name
-    node = _MessageEncodeNode(descriptor_index, type_name)
+    node = _Node(d)
     return node
   elif isinstance(node, list):
     li = []
@@ -82,17 +102,6 @@ def _MakeTree(node, descriptor_index, type_name):
     return node
   else:
     return node
-
-
-class _Node(object):
-
-  def __init__(self, field_value, encoder, sizer):
-    self.field_value = field_value
-    self.encoder = encoder
-    self.sizer = sizer
-
-  def ByteSize(self):
-    return self.sizer(self.field_value)
 
 
 class _MessageListEncodeNode(object):
@@ -122,7 +131,7 @@ class _MessageListEncodeNode(object):
         yield value
 
 
-class _MessageEncodeNode(object):
+class _DescriptorNode(object):
   """
   First we _MakeDescriptors
   Then we pass the descriptor_index to this object, which has an encode method
@@ -150,7 +159,8 @@ class _MessageEncodeNode(object):
     call the right encoder.
     """
     # this weird structured is forced by encoder.py/decoder.py
-    self.obj = _MakeTree(obj, self.descriptor_index, self.type_name)
+    descriptor = self.descriptor_index[self.type_name]
+    self.obj = _MakeTree(obj, descriptor)
 
     buf = []
     write_bytes = buf.append
@@ -219,7 +229,7 @@ class _MessageEncodeNode(object):
     # and it will create a look up from field name -> descriptor
     #
     # And then _MakeTree will get the descriptor, and create a
-    # _MessageEncodeNode etc. with it
+    # _DescriptorNode etc. with it
     #
     all_fields = [item for item in self._fields.iteritems() if _IsPresent(item)]
     all_fields.sort(key = lambda item: item[0].number)
@@ -258,8 +268,10 @@ class Descriptor(object):
   def __init__(self, encoder, sizer):
     self.encoder = encoder 
     self.sizer = sizer 
+    self.fields = {}
     # fields are pointers to other descriptors?
     # field name -> descriptor?
+
 
 def _MakeDescriptors(type_index, descriptor_index, type_name):
   """
@@ -693,7 +705,7 @@ class DescriptorSet(object):
     PrintSubtree(self.descriptor_index)
     print
 
-    m = _MessageEncodeNode(self.descriptor_index, type_name)
+    m = _DescriptorNode(self.descriptor_index, type_name)
     # Return encoding function
     return m.encode
 
@@ -710,7 +722,7 @@ class DescriptorSet(object):
     #PrintSubtree(self.sizers_index)
     #print
 
-    #m = _MessageEncodeNode(self.encoders_index, self.sizers_index, type_name)
+    #m = _DescriptorNode(self.encoders_index, self.sizers_index, type_name)
     # Return encoding function
     #return m.encode
 
