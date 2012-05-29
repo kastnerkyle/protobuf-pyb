@@ -70,7 +70,7 @@ class _BaseValue(object):
     return '<Value %s %s>' % (self.value, self.descriptors)
 
 
-class _ValueNode(_BaseValue):
+class _CompositeNode(_BaseValue):
 
   def __init__(self, value, descriptors):
     """
@@ -81,62 +81,91 @@ class _ValueNode(_BaseValue):
   def ByteSize(self):
     return self.sizer(self.field_value)
 
+  def ListFields(self):
+    """
+    """
+    # TODO: When constructing a descriptor,
+
+  def _InternalSerialize(self, write_bytes):
+    """
+    """
+    #fields = self.obj.keys()
+    # TODO: sort the fields
+
+    for field_descriptor, field_value in self.ListFields():
+      field_descriptor.encoder(write_bytes, field_value)
+
 
 class _RepeatedValueNode(_BaseValue):
 
-  def __init__(self, value, descriptors):
+  def __init__(self, value, descriptor):
     """
     """
     self.value = value
-    self.descriptors = descriptors
+    self.descriptors = descriptor
 
 
 class _Atom(_BaseValue):
 
-  def __init__(self, value, descriptors):
+  def __init__(self, value, descriptor):
     """
     """
     self.value = value
-    self.descriptors = descriptors
+    self.descriptor = descriptor
+
+  def __str__(self):
+    return '<Value %s %s>' % (self.value, self.descriptor)
 
 
 def PrintValueTree(root):
-  if isinstance(root, _ValueNode):
+  if isinstance(root, _CompositeNode):
     pass
+
+
+def _MakeNode(value, descriptor):
+  """
+  Args:
+    value: single value
+    descriptor: Descriptor instance
+  """
+  print '_MakeNode', value, descriptor
+  if isinstance(value, dict):
+    assert isinstance(descriptor.fields, dict)
+    return _MakeTree(value, descriptor.fields)
+
+  elif isinstance(value, list):
+    li = []
+    for item in value:
+      li.append(_MakeNode(item, descriptor))
+    node = _RepeatedValueNode(li, descriptor)
+    return node
+  else:
+    # Field descriptor?
+    return _Atom(value, descriptor)
 
 
 def _MakeTree(node, descriptors):
   """
   Args:
-    node: root object
-    descriptor: dict of Descriptor() instances
+    node: root raw dictionary object
+    descriptors: dict of Descriptor() instances (output of _MakeDescriptors)
 
   Returns:
     Tree of _Node objects
 
   Take a simple dictionary and create a _DescriptorNode tree.
   """
-  if isinstance(node, dict):
-    d = {}
-    for name, value in node.iteritems():
-      print 'NAME', name, 'VALUE', value
-      field_descriptors = descriptors[name].fields
-      print 'FIELD_DSECRIPTORS', field_descriptors
-      d[name] = _MakeTree(value, field_descriptors)
+  # NOTE: There is this assymetry because in protobufs, you MUST encode
+  # dictionaries (composites).  You can't encode just an atom -- it needs to be
+  # part of a message.  Everything has a name!
 
-    pprint(d)
-    # get the type name
-    node = _ValueNode(d, descriptors)
-    return node
-  elif isinstance(node, list):
-    li = []
-    for item in node:
-      li.append(_MakeTree(item, descriptors))
-    node = _RepeatedValueNode(li, descriptors)
-    return node
-  else:
-    # Field descriptor?
-    return node
+  assert isinstance(node, dict)
+  d = {}
+  for name, value in node.iteritems():
+    print 'NAME', name, 'VALUE', value
+    descriptor = descriptors[name]
+    d[name] = _MakeNode(value, descriptor)
+  return _CompositeNode(d, descriptors)
 
 
 class _MessageListEncodeNode(object):
@@ -258,7 +287,6 @@ class _DescriptorNode(object):
     # _MakeEncoders -- once per *TYPE*
     # _MakeTree -- once per *MESSAGE*
     #
-    # _MakeEncoders should really be _MakeDescriptors
     # descriptor will have sizer and encoder attached, and it will have an
     # order?
     # and it will create a look up from field name -> descriptor

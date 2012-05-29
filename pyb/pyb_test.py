@@ -197,6 +197,8 @@ class PybTest(unittest.TestCase):
     print
     print t.value['person'].value[0].descriptors
 
+    print t.value['person'].value[0].value['name'].descriptor
+
 
 if __name__ == '__main__':
   unittest.main()
