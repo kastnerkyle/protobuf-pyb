@@ -62,7 +62,7 @@ def PrintSubtree(subtree, indent=0):
 #
 
 
-class _EncodeNode(object):
+class _MessageEncodeNode(object):
 
   def __init__(self, encoders_index, sizers_index, type_name):
     self.encoders_index = encoders_index
@@ -110,7 +110,6 @@ class _EncodeNode(object):
       encoder = self.encoders[field_name]
       print 'ENCODER', encoder
       encoder(write_bytes, field_value)
-
 
 
 def _MakeEncoders(type_index, encoders_index, type_name):
@@ -174,7 +173,7 @@ def _DefaultValueConstructor(field, type_index, decoders_index, is_repeated):
 
     {  tag bytes -> decoder returned by MessageDecoder }
 
-  The decoder has a reference to new_default, which creates _FakeMessage which
+  The decoder has a reference to new_default, which creates _MessageNode which
   holds refernces to the proper decoders.
   """
   field_type = field['type']
@@ -196,13 +195,13 @@ def _DefaultValueConstructor(field, type_index, decoders_index, is_repeated):
       decoders_index[type_name] = decoders
 
     if is_repeated:
-      return lambda m: _FakeCompositeList(decoders_index, type_name)
+      return lambda m: _MessageListNode(decoders_index, type_name)
     else:
-      return lambda m: _FakeMessage(decoders_index, type_name)
+      return lambda m: _MessageNode(decoders_index, type_name)
 
   else:  # scalar
     if is_repeated:
-      return lambda m: _FakeScalarList(lambda: field['default_value'])
+      return lambda m: _ScalarListNode(lambda: field['default_value'])
     else:
       return lambda m: field['default_value']
 
@@ -255,7 +254,7 @@ def _MakeDecoders(type_index, decoders_index, type_name):
   return decoders
 
 
-class _FakeMessage(object):
+class _MessageNode(object):
   """
   This is instantiated in GetDecoder -> function returned by
   _DefaultValueConstructor.
@@ -299,7 +298,7 @@ def _MakeDict(node):
   """
   message
   """
-  if isinstance(node, _FakeMessage):
+  if isinstance(node, _MessageNode):
     result = {}
     for k, v in node.field_dict.iteritems():
       result[k] = _MakeDict(v)
@@ -313,7 +312,7 @@ def _MakeDict(node):
     return node
 
 
-class _FakeCompositeList(list):
+class _MessageListNode(list):
 
   def __init__(self, decoders_index, type_name):
     self.decoders_index = decoders_index
@@ -323,12 +322,12 @@ class _FakeCompositeList(list):
     """Return a new value of the given type.  Add it to the end of the list"""
 
     # ARGH, this might not be a message.
-    x = _FakeMessage(self.decoders_index, self.type_name)
+    x = _MessageNode(self.decoders_index, self.type_name)
     self.append(x)
     return x
 
 
-class _FakeScalarList(list):
+class _ScalarListNode(list):
 
   def __init__(self, new_default):
     self.new_default = new_default
@@ -381,7 +380,7 @@ class DescriptorSet(object):
     # object is not immutable and can be used from multiple threads.
     decoders = _MakeDecoders(self.type_index, self.decoders_index, type_name)
     self.decoders_index[type_name] = decoders
-    m = _FakeMessage(self.decoders_index, type_name)
+    m = _MessageNode(self.decoders_index, type_name)
     # Return decoding function
     return m.decode
 
@@ -389,7 +388,7 @@ class DescriptorSet(object):
     encoders, sizers = _MakeEncoders(self.type_index, self.encoders_index, type_name)
     self.encoders_index[type_name] = encoders
     self.sizers_index[type_name] = sizers
-    return _EncodeNode(self.encoders_index, self.sizers_index, type_name)
+    return _MessageEncodeNode(self.encoders_index, self.sizers_index, type_name)
 
 
 def IndexEnums(enums, root):
