@@ -158,6 +158,10 @@ def _MakeNode(value, descriptor):
     value: single value
     descriptor: Descriptor instance
   """
+  # TODO: The dichotomy here should be composite/primitive, NOT dict/list.  If
+  # we have a message descriptor, then we should create a _MessageEncodeNode.
+  # Otherwise we create an _Atom node.
+
   print '_MakeNode', value, descriptor
   if isinstance(value, dict):
     assert isinstance(descriptor.fields, dict)
