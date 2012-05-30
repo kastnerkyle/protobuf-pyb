@@ -70,7 +70,7 @@ class _BaseValue(object):
     return '<Value %s %s>' % (self.value, self.descriptors)
 
 
-class _CompositeNode(_BaseValue):
+class _MessageEncodeNode(_BaseValue):
   """
   TODO: Rename
   """
@@ -156,11 +156,6 @@ class _Atom(_BaseValue):
     return '<Value %s %s>' % (self.value, self.descriptor)
 
 
-def PrintValueTree(root):
-  if isinstance(root, _CompositeNode):
-    pass
-
-
 def _MakeNode(value, descriptor):
   """
   Args:
@@ -192,7 +187,7 @@ def _MakeTree(node, descriptors):
   Returns:
     Tree of _Node objects
 
-  Take a simple dictionary and create a _DescriptorNode tree.
+  Take a simple dictionary and create a _MessageEncodeNode tree.
   """
   # NOTE: There is this assymetry because in protobufs, you MUST encode
   # dictionaries (composites).  You can't encode just an atom -- it needs to be
@@ -204,13 +199,14 @@ def _MakeTree(node, descriptors):
     print 'NAME', name, 'VALUE', value
     descriptor = descriptors[name]
     d[name] = _MakeNode(value, descriptor)
-  return _CompositeNode(d, descriptors)
+  return _MessageEncodeNode(d, descriptors)
 
 
-class _DescriptorNode(object):
+class Encoder(object):
   """
-  First we _MakeDescriptors
-  Then we pass the descriptor_index to this object, which has an encode method
+  This objects exists independent of any values.
+
+  _MessageEncodeNode is created with values.
   """
   def __init__(self, descriptors):
     self.descriptors = descriptors
@@ -223,9 +219,8 @@ class _DescriptorNode(object):
     First we transform it to a tree of nodes, with type information.  Then we
     call the right encoder.
     """
-    # this weird structured is forced by encoder.py/decoder.py
+    # this weird structure is forced by encoder.py/decoder.py
     obj = _MakeTree(obj, self.descriptors)
-    #self.obj = obj
 
     buf = []
     write_bytes = buf.append
@@ -571,7 +566,7 @@ class DescriptorSet(object):
     print
 
     descriptors = self.descriptor_index[type_name]
-    m = _DescriptorNode(descriptors)
+    m = Encoder(descriptors)
     # Return encoding function
     return m.encode
 
