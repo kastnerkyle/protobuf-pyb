@@ -70,4 +70,5 @@ TODO
 
 - encoding of messages -- somewhat DONE
   - encoding needs to check REQUIRED fields!  We can create invalid messages now
-- enum decoding and encoding
+- enum decoding and encoding 
+- Tests: copy golden message from protobuf repository

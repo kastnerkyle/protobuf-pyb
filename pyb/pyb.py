@@ -25,6 +25,48 @@ Dynamic bootstrapping
 getting a dictinoary
 3. Create a pyb.DescriptorSet from that
 4. Decode and encode regular messages using the descriptor
+
+NOTE
+----
+
+The structure of this code is somewhat awkward because we are trying to preserve
+decoder.py and encoder.py from the proto2 implementation (i.e. avoiding hacking
+it up and having merges to do)
+
+The main issue is that the point of pyb is to convert between *dictionaries* and
+byte strings.
+
+The point of proto2 is to convert betwen *Python objects* and byte strings.
+
+encoder.py/decoder.py are somewhat intertwined with the generated Python class
+structure, in that they depend on:
+
+  _InternalParse: for decoding
+  _InternalSerialize, ByteSize: for encoding
+
+Decoding:
+
+  Upon GetDecoder("package.Type"), we call _MakeDecoders to make an index of
+  (type name -> decoder).
+
+  The decoders need a "new_default" function per type to create new values as
+  they decode.  So we return a "factory function" that create objects which have
+  an _InternalParse method (_MessageNode).
+
+  We get back a tree of _MessageNode, and then we convert to dict (_TreeToDict).
+
+Encoding:
+
+  We create a encoders and sizers recursively, attaching them to tree a
+  Descriptor() instances (one for each type).
+
+  The encoding loop needs to call _InternalSerialize and ByteSize.  So we first
+  convert our dict to an object tree with associated Descriptor instances
+  (_MessageEncodeNode, which has _InternalSerialize).
+
+  Then we call _InternalSerialize on the top level one with a single write_bytes
+  function, and its walks through the object tree, calling the right encodres
+  and sizers.
 """
 
 __author__ = 'Andy Chu'
