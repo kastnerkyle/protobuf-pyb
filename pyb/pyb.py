@@ -207,43 +207,13 @@ def _MakeTree(node, descriptors):
   return _CompositeNode(d, descriptors)
 
 
-class _MessageListEncodeNode(object):
-  """
-  Holds the schema?
-  Maybe it should just hold its own
-  """
-
-  def __init__(self, field_value, descriptor_index, type_name):
-    self.field_value = field_value
-    self.descriptor_index = descriptor_index
-    self.type_name = type_name
-    self.descriptor = descriptor_index[type_name]
-
-  def ByteSize(self):
-    """
-    """
-
-  def __iter__(self):
-    for value in self.field_value:
-      if isinstance(value, dict):
-        print 'yielding', value
-        # _Node with a descriptor?
-        yield _Node(value, self.descriptor)
-      else:
-        print 'yielding', value
-        yield value
-
-
 class _DescriptorNode(object):
   """
   First we _MakeDescriptors
   Then we pass the descriptor_index to this object, which has an encode method
   """
-
-  def __init__(self, descriptor_index, type_name):
-    self.descriptor_index = descriptor_index
-    self.type_name = type_name
-    self.obj = None
+  def __init__(self, descriptors):
+    self.descriptors = descriptors
 
   def encode(self, obj):
     """
@@ -254,106 +224,13 @@ class _DescriptorNode(object):
     call the right encoder.
     """
     # this weird structured is forced by encoder.py/decoder.py
-    descriptors = self.descriptor_index[self.type_name]
-    self.obj = _MakeTree(obj, descriptors)
+    obj = _MakeTree(obj, self.descriptors)
     #self.obj = obj
 
     buf = []
     write_bytes = buf.append
-    self._InternalSerialize(write_bytes)
+    obj._InternalSerialize(write_bytes)
     return ''.join(buf)
-
-  def ByteSize(self):
-    """Called at runtime in the encoding loop.
-
-    We go through fields and call their sizers.  For a message at the top
-    level, this ends up reading all values in self.obj (the thing we're
-    encoding).
-
-    Oh I see why it has a cache now.  TODO: trace repeated calls of the same
-    sizer.
-
-    """
-    # Here, we need to iterate over nodes to get the right type names.
-    # And the right sizers
-    # Shit I think this needs to eventually call ByteSize() on other nodes
-    # like the _InternalSerialize needs to call _InternalSerialize on other
-    # nodes!
-    # ARGH!
-
-    # self.obj needs to be the TREE
-
-    sizers = self.sizers
-
-    size = 0
-    for name, value in self.obj.iteritems():
-      sizer = sizers[name]
-      size += sizer(value)
-
-    return size
-
-  def _IsPresent(item):
-    """
-    Given a (FieldDescriptor, value) tuple from _fields, return true if the
-    value should be included in the list returned by ListFields()."""
-
-    if item[0].label == _FieldDescriptor.LABEL_REPEATED:
-      return bool(item[1])
-    elif item[0].cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
-      return item[1]._is_present_in_parent
-    else:
-      return True
-
-  def ListFields(self):
-    # Get the message Descriptor dict with
-    #
-    # self.type_index[self.type_name]
-    #
-    # then list all the fields
-    # sort them by number
-    # we need their encoder and sizer too
-    # 
-    # Should _MakeEncoders put these in type_index?
-    # or _MakeTree
-    #
-    # _MakeEncoders -- once per *TYPE*
-    # _MakeTree -- once per *MESSAGE*
-    #
-    # descriptor will have sizer and encoder attached, and it will have an
-    # order?
-    # and it will create a look up from field name -> descriptor
-    #
-    # And then _MakeTree will get the descriptor, and create a
-    # _DescriptorNode etc. with it
-    #
-    all_fields = [item for item in self._fields.iteritems() if _IsPresent(item)]
-    all_fields.sort(key = lambda item: item[0].number)
-    return all_fields
-
-  def _InternalSerialize(self, write_bytes):
-    """
-    Takes self.obj and encodes it to the write_bytes callable.
-    """
-    #fields = self.obj.keys()
-    # TODO: sort the fields
-
-    #for field_descriptor, field_value in self.ListFields():
-    #  field_descriptor._encoder(write_bytes, field_value)
-
-    return self.obj._InternalSerialize(write_bytes)
-
-    for field_name, field_value in self.obj.iteritems():
-      print 'FIELD NAME', field_name
-      encoder = self.encoders[field_name]
-      sizer = self.sizers[field_name]
-      if isinstance(field_value, dict):
-        node = _Node(field_value, encoder, sizer)
-      elif isinstance(field_value, list):
-        node = _NodeList(field_value, encoder, sizer)
-      else:
-        node = field_value
-      print 'Writing', node, 'with ENCODER', encoder
-      encoder(write_bytes, node)
 
 
 class Descriptor(object):
@@ -447,119 +324,6 @@ def _MakeDescriptors(type_index, descriptor_index, type_name):
   # RESULT: populate descriptor index
   descriptor_index[type_name] = descriptors
   return descriptors
-
-
-def _MakeEncoders(type_index, encoders_index, sizers_index, type_name):
-  """
-  Given a type name, look up all the dependent types in the type_index and
-  compute encoders for them.
-  
-
-  TODO:
-    - We should put those in encoders_index?
-    - We should also populate sizers_index
-
-  Examples:
-    Dict of message name -> { dict of field names -> encoder / sizer }
-
-    BUT: to encode in order by tag, really what we need is a list of field
-    descriptors?
-   
-  encoders_index
-  .tutorial.AddressBook
-    person        <function EncodeRepeatedField at 0xb7122e2c>
-  .tutorial.Person
-    email         <function EncodeField>
-    id            <function EncodeField>
-    name          <function EncodeField>
-    phone         <function EncodeRepeatedField>
-  .tutorial.Person.PhoneNumber
-    number        <function EncodeField>
-    type          <function EncodeField>
-
-  sizers_index
-  .tutorial.AddressBook
-    person        <function RepeatedFieldSize at 0xb7122e64>
-  .tutorial.Person
-    email         <function FieldSize>
-    id            <function FieldSize>
-    name          <function FieldSize>
-    phone         <function RepeatedFieldSize at 0xb712e064>
-  .tutorial.Person.PhoneNumber
-    number        <function FieldSize>
-    type          <function FieldSize>
-
-  """
-  message_dict = type_index[type_name]
-  encoders = {}  # field name -> encoder function
-  sizers = {}  # field name -> sizer function
-
-  fields = message_dict.get('field')
-  if not fields:
-    print message_dict
-    raise Error('No fields for %s' % type_name)
-
-  for f in fields:
-    field_type = f['type']  # a string
-    number = f['number']  # a string
-    name = f['name']  # a string
-    wire_type = lookup.FIELD_TYPE_TO_WIRE_TYPE[field_type]  # int
-
-    print '---------'
-    print 'encoders FIELD name', f['name']
-    print 'encoders field type', field_type
-    print 'encoders wire type', wire_type
-
-    #tag_bytes = encoder.TagBytes(number, wire_type)
-
-    # get a encoder constructor, e.g. MessageENcoder
-    make_encoder = lookup.TYPE_TO_ENCODER[field_type]
-    print 'MAKE_ENCODER', make_encoder
-    make_sizer = lookup.TYPE_TO_SIZER[field_type]
-    print 'MAKE_SIZE', make_sizer
-
-    is_repeated = (f['label'] == 'LABEL_REPEATED')
-    is_packed = False
-
-    # Now create the encoders/sizer by calling the constructor.  Put them in two
-    # indexes { field name -> encoder } and { field name -> sizer }
-    #
-    # NOTE: In proto2, there is a FieldDescriptor for each field.  And we attach
-    # the encoder/sizer there, which is faster to look up.
-    #
-    # There is a Descriptor for the message, which has a _fields dict of
-    # FieldDescriptor -> default value.  That is used in ListFields.
-
-    encoders[name] = make_encoder(number, is_repeated, is_packed)
-    sizers[name] = make_sizer(number, is_repeated, is_packed)
-
-    # Recurse
-    if field_type == 'TYPE_MESSAGE':
-      _SubMessage(f, type_index, encoders_index, sizers_index, is_repeated)
-
-  return encoders, sizers
-
-
-def _SubMessage(field, type_index, encoders_index, sizers_index, is_repeated):
-  """
-  Helper for _MakeEncoders.  For the given submessage field, create and populate
-  encoders/sizers.
-  """
-  assert field['type'] == 'TYPE_MESSAGE'
-
-  type_name = field.get('type_name')
-  print "type name", type_name
-  assert type_name
-
-  # Populate the decoders_index so that the constructor returned below can
-  # access decoders.
-  if type_name not in encoders_index:
-    # mark visited BEFORE recursive call, preventing infinite recursion
-    encoders_index[type_name] = True
-    encoders, sizers = _MakeEncoders(type_index, encoders_index, sizers_index, 
-                                     type_name)
-    encoders_index[type_name] = encoders
-    sizers_index[type_name] = sizers
 
 
 #
@@ -806,27 +570,10 @@ class DescriptorSet(object):
     PrintSubtree(self.descriptor_index)
     print
 
-    m = _DescriptorNode(self.descriptor_index, type_name)
-
+    descriptors = self.descriptor_index[type_name]
+    m = _DescriptorNode(descriptors)
     # Return encoding function
     return m.encode
-
-    #encoders, sizers = _MakeEncoders(
-    #    self.type_index, self.encoders_index, self.sizers_index, type_name)
-    #self.encoders_index[type_name] = encoders
-    #self.sizers_index[type_name] = sizers
-
-    #print
-    #print 'ENCODERS'
-    #PrintSubtree(self.encoders_index)
-    #print
-    #print 'SIZERS'
-    #PrintSubtree(self.sizers_index)
-    #print
-
-    #m = _DescriptorNode(self.encoders_index, self.sizers_index, type_name)
-    # Return encoding function
-    #return m.encode
 
 
 def IndexEnums(enums, root):
