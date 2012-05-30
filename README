@@ -68,5 +68,6 @@ pyb_tool.py -- Command line tool.  Maybe move to bin/
 TODO
 ----
 
-- encoding of messages
+- encoding of messages -- somewhat DONE
+  - encoding needs to check REQUIRED fields!  We can create invalid messages now
 - enum decoding and encoding
