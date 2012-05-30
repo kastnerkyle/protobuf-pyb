@@ -177,11 +177,11 @@ class PybTest(unittest.TestCase):
     pyb.PrintSubtree(ds.descriptor_index)
     print
 
-  def testMakeTree(self):
+  def testDictToTree(self):
     ds = self.address_book  # DescriptorSet
     descriptors = pyb._MakeDescriptors(
         ds.type_index, ds.descriptor_index, '.tutorial.AddressBook')
-    t = pyb._MakeTree({'person': [{'name': 'Jill'}]}, descriptors)
+    t = pyb._DictToTree({'person': [{'name': 'Jill'}]}, descriptors)
 
     print '---'
     print t

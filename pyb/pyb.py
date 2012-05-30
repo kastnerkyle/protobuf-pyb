@@ -161,7 +161,7 @@ def _MakeNode(value, descriptor):
   print '_MakeNode', value, descriptor
   if isinstance(value, dict):
     assert isinstance(descriptor.fields, dict)
-    return _MakeTree(value, descriptor.fields)
+    return _DictToTree(value, descriptor.fields)
 
   elif isinstance(value, list):
     li = []
@@ -174,7 +174,7 @@ def _MakeNode(value, descriptor):
     return _Atom(value, descriptor)
 
 
-def _MakeTree(node, descriptors):
+def _DictToTree(node, descriptors):
   """
   Args:
     node: root raw dictionary object
@@ -216,7 +216,7 @@ class Encoder(object):
     call the right encoder.
     """
     # this weird structure is forced by encoder.py/decoder.py
-    obj = _MakeTree(obj, self.descriptors)
+    obj = _DictToTree(obj, self.descriptors)
 
     buf = []
     write_bytes = buf.append
@@ -462,22 +462,22 @@ class _MessageNode(object):
   def decode(self, buffer):
     """Decode function."""
     pos = self._InternalParse(buffer, 0, len(buffer))
-    return _MakeDict(self)
+    return _TreeToDict(self)
 
 
-def _MakeDict(node):
+def _TreeToDict(node):
   """
   Take a _MessageNode tree and create a simple dictionary.
   """
   if isinstance(node, _MessageNode):
     result = {}
     for k, v in node.field_dict.iteritems():
-      result[k] = _MakeDict(v)
+      result[k] = _TreeToDict(v)
     return result
   elif isinstance(node, list):
     result = []
     for item in node:
-      result.append(_MakeDict(item))
+      result.append(_TreeToDict(item))
     return result
   else:
     return node
@@ -515,6 +515,9 @@ class DescriptorSet(object):
   """
   Represents proto message definitions, where the definitions can span multiple
   files.  (Corresponds to proto2.FileDescriptorSet)
+
+  We allow users to get encoders and decoders separately.  Typically programs
+  will encode XOR decode a given message type, not both.
   """
 
   def __init__(self, desc_dict):
@@ -570,6 +573,9 @@ class DescriptorSet(object):
     # Return encoding function
     return m.encode
 
+#
+# Related to DescriptorSet
+#
 
 def IndexEnums(enums, root):
   """Given the enum type information, attach it to the Message class."""
