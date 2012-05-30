@@ -72,25 +72,25 @@ class _BaseValue(object):
 
 class _MessageEncodeNode(_BaseValue):
   """
-  TODO: Rename
+  A message value in the encoding tree.  Occurs at the top level (since a
+  message is the only kind of node that can be encoded) and WITHIN the tree.
   """
 
   def __init__(self, value, descriptors):
     """
+    Args:
+      value: dictionary representing the message (field name -> value)
+      descriptors: field name -> Descriptor() instance
     """
     self.value = value
     self.descriptors = descriptors
 
   def ByteSize(self):
-    # Here, we need to iterate over nodes to get the right type names.
-    # And the right sizers
-    # Shit I think this needs to eventually call ByteSize() on other nodes
-    # like the _InternalSerialize needs to call _InternalSerialize on other
-    # nodes!
-    # ARGH!
-
-    # self.obj needs to be the TREE
-
+    """
+    Called by stuff in encoders.py.
+    """
+    # TODO: Does there need to be a cache?  I think there are multiple recursive
+    # calls to the same sizer?
     size = 0
     for field_name, descriptor in self.descriptors.iteritems():
       node = self.value.get(field_name)
@@ -98,6 +98,7 @@ class _MessageEncodeNode(_BaseValue):
         size += descriptor.sizer(node.value)
     return size
 
+  # TODO: port this logic, not used yet
   def _IsPresent(item):
     """
     Given a (FieldDescriptor, value) tuple from _fields, return true if the
@@ -110,6 +111,7 @@ class _MessageEncodeNode(_BaseValue):
     else:
       return True
 
+  # TODO: port this logic, not used yet
   def ListFields(self):
     """
     Returns a list of field descriptor -> value?
@@ -122,17 +124,11 @@ class _MessageEncodeNode(_BaseValue):
   def _InternalSerialize(self, write_bytes):
     """
     """
-    #fields = self.obj.keys()
-    # TODO: sort the fields
+    # TODO: sort the fields by number
     for field_name, descriptor in self.descriptors.iteritems():
       node = self.value.get(field_name)
       if node:
         descriptor.encoder(write_bytes, node.value)
-
-    return
-
-    for field_descriptor, field_value in self.ListFields():
-      field_descriptor.encoder(write_bytes, field_value)
 
 
 class _RepeatedValueNode(_BaseValue):
@@ -252,6 +248,8 @@ class Descriptor(object):
 
 def _MakeDescriptors(type_index, descriptor_index, type_name):
   """
+  When an encoder is requested, we have walk the type graph recursively and make
+  encoders/sizers for all types (INDEPENDENT of any values).
   """
   message_dict = type_index[type_name]
   descriptors = {}  # field name -> Descriptor instance
@@ -379,6 +377,8 @@ def _DefaultValueConstructor(field, type_index, decoders_index, is_repeated):
 
 def _MakeDecoders(type_index, decoders_index, type_name):
   """
+  When a decoder is requested for a given type, walk the type graph recursively
+  and make decoders (INDEPENDENT of any actual values).
   """
   #pprint(self.root)
   message_dict = type_index[type_name]
