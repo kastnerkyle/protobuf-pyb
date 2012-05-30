@@ -81,16 +81,38 @@ class _CompositeNode(_BaseValue):
   def ByteSize(self):
     return self.sizer(self.field_value)
 
+  def _IsPresent(item):
+    """
+    Given a (FieldDescriptor, value) tuple from _fields, return true if the
+    value should be included in the list returned by ListFields()."""
+
+    if item[0].label == _FieldDescriptor.LABEL_REPEATED:
+      return bool(item[1])
+    elif item[0].cpp_type == _FieldDescriptor.CPPTYPE_MESSAGE:
+      return item[1]._is_present_in_parent
+    else:
+      return True
+
   def ListFields(self):
     """
+    Returns a list of field descriptor -> value?
     """
     # TODO: When constructing a descriptor,
+    all_fields = [item for item in self._fields.iteritems() if _IsPresent(item)]
+    all_fields.sort(key = lambda item: item[0].number)
+    return all_fields
 
   def _InternalSerialize(self, write_bytes):
     """
     """
     #fields = self.obj.keys()
     # TODO: sort the fields
+    for field_name, descriptor in self.descriptors.iteritems():
+      node = self.value.get(field_name)
+      if node:
+        descriptor.encoder(write_bytes, node.value)
+
+    return
 
     for field_descriptor, field_value in self.ListFields():
       field_descriptor.encoder(write_bytes, field_value)
@@ -203,15 +225,7 @@ class _DescriptorNode(object):
 
   def __init__(self, descriptor_index, type_name):
     self.descriptor_index = descriptor_index
-    #self.encoders_index = encoders_index
-    #self.sizers_index = sizers_index
     self.type_name = type_name
-
-    # field name -> encoder
-    #self.encoders = self.encoders_index[type_name]
-    # field name -> sizer
-    #self.sizers = self.sizers_index[type_name]
-
     self.obj = None
 
   def encode(self, obj):
@@ -225,6 +239,7 @@ class _DescriptorNode(object):
     # this weird structured is forced by encoder.py/decoder.py
     descriptors = self.descriptor_index[self.type_name]
     self.obj = _MakeTree(obj, descriptors)
+    #self.obj = obj
 
     buf = []
     write_bytes = buf.append
@@ -305,8 +320,10 @@ class _DescriptorNode(object):
     #fields = self.obj.keys()
     # TODO: sort the fields
 
-    for field_descriptor, field_value in self.ListFields():
-      field_descriptor._encoder(write_bytes, field_value)
+    #for field_descriptor, field_value in self.ListFields():
+    #  field_descriptor._encoder(write_bytes, field_value)
+
+    return self.obj._InternalSerialize(write_bytes)
 
     for field_name, field_value in self.obj.iteritems():
       print 'FIELD NAME', field_name
@@ -773,6 +790,7 @@ class DescriptorSet(object):
     print
 
     m = _DescriptorNode(self.descriptor_index, type_name)
+
     # Return encoding function
     return m.encode
 
