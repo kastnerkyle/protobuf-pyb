@@ -103,6 +103,10 @@ class PybTest(unittest.TestCase):
     bytes = encode({'person': [{'name': 'Jill'}]})
     print 'BYTES', repr(bytes)
 
+    f = open('addressbook.bin', 'w')
+    f.write(bytes)
+    f.close()
+
   def testTrivialDecode(self):
     # This isn't bootstrapped -- this is just a small test
 

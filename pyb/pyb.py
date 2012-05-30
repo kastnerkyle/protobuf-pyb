@@ -71,6 +71,9 @@ class _BaseValue(object):
 
 
 class _CompositeNode(_BaseValue):
+  """
+  TODO: Rename
+  """
 
   def __init__(self, value, descriptors):
     """
@@ -79,7 +82,21 @@ class _CompositeNode(_BaseValue):
     self.descriptors = descriptors
 
   def ByteSize(self):
-    return self.sizer(self.field_value)
+    # Here, we need to iterate over nodes to get the right type names.
+    # And the right sizers
+    # Shit I think this needs to eventually call ByteSize() on other nodes
+    # like the _InternalSerialize needs to call _InternalSerialize on other
+    # nodes!
+    # ARGH!
+
+    # self.obj needs to be the TREE
+
+    size = 0
+    for field_name, descriptor in self.descriptors.iteritems():
+      node = self.value.get(field_name)
+      if node:
+        size += descriptor.sizer(node.value)
+    return size
 
   def _IsPresent(item):
     """
