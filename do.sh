@@ -23,8 +23,26 @@ build-java() {
   tree java
 }
 
+# Ubuntu has a package 'protobuf-compiler', which doesn't let you build generate
+# C++?  Need 'libprotobuf-dev'.
 addr() {
+  set -o errexit
+
+  # Output generated code in cpp/ dir
   build-cpp testdata/addressbook/addressbook.proto
+  # Compile generated code with demo.  Add cpp to include path, link with
+  # libprotobuf.a.
+  g++ -o add_person \
+    -Icpp \
+    -lprotobuf \
+    cpp/testdata/addressbook/addressbook.pb.cc \
+    examples/add_person.cc
+
+  g++ -o list_people \
+    -Icpp \
+    -lprotobuf \
+    cpp/testdata/addressbook/addressbook.pb.cc \
+    examples/list_people.cc
 }
 
 # bash completion
