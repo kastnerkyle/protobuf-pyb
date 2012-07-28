@@ -39,7 +39,9 @@ count() {
 
 # Tried out tool, doesn't quite work yet
 tool-test() {
-  echo foo | ./pyb_tool.py -d foo:bar encode
+  # old for raw_decode, maybe that should be moved
+  export PYTHONPATH=pyb:old
+  echo foo | bin/pyb_tool.py -d foo:bar encode
 }
 
 # This is a proto2 example, requiring generated code
